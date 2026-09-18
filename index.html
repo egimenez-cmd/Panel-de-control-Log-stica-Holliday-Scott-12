@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="hosting-provider" content="Netlify">
+<meta name="netlify-deploy" content="https://netlify.new/?utm_campaign=ai-legible&amp;utm_source=meta&amp;utm_medium=referral&amp;utm_id=b9f60a00-b431-42c6-999e-35fb7d8b7cdd">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Control — Logística</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:            #0A0F1A;
+    --panel:         #111926;
+    --panel-raised:  #16202F;
+    --line:          #23304480;
+    --line-strong:   #2C3B52;
+    --ink:           #E7ECF3;
+    --ink-dim:       #93A2B8;
+    --ink-faint:     #5D6C82;
+    --teal:          #35C7B7;
+    --amber:         #F2A93B;
+    --coral:         #E2645A;
+    --green:         #4FBE8C;
+    --violet:        #8C8FE8;
+    --sky:           #4EA8DE;
+    --disp:          'Space Grotesk', sans-serif;
+    --body:          'IBM Plex Sans', sans-serif;
+    --mono:          'IBM Plex Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0; overflow-x:hidden; height:100%;}
+  body{
+    background:
+      radial-gradient(1100px 600px at 85% -10%, #14233A66, transparent 60%),
+      radial-gradient(900px 500px at -5% 110%, #1A2B3D55, transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---------- Header / nav ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; flex-wrap:wrap;
+    padding:12px 28px !important;
+    background:#0A0F1AEE;
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    width: 100%;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand .mark{
+    width:36px; height:36px; border-radius:8px;
+    background:linear-gradient(145deg,var(--teal),#1C8C81);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--disp); font-weight:700; color:#04211D; font-size:16px;
+  }
+  .brand h1{font-family:var(--disp); font-size:18px !important; font-weight:600; margin:0; letter-spacing:.2px;}
+  .brand .sub{font-size:12.5px; color:var(--ink-faint); font-family:var(--mono); margin-top:1px;}
+
+  nav.tabs{display:flex; gap:6px; background:var(--panel); padding:4px; border-radius:10px; border:1px solid var(--line);}
+  nav.tabs button{
+    appearance:none; border:none; background:transparent; color:var(--ink-dim);
+    font-family:var(--body); font-weight:500; font-size:15.5px !important;
+    padding:8px 18px; border-radius:7px; cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+    white-space:nowrap;
+  }
+  nav.tabs button:hover{color:var(--ink);}
+  nav.tabs button.active{background:var(--panel-raised); color:var(--ink); box-shadow:inset 0 0 0 1px var(--line-strong);}
+  nav.tabs button .dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:8px; position:relative; top:-1px;}
+
+  .status{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:12.5px; color:var(--ink-faint);}
+  .status .pulse{width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px #4FBE8C22;}
+  #liveBadge.stale .pulse{background:var(--ink-faint); box-shadow:none;}
+
+  /* --- MODIFICACIÓN DE ANCHO COMPLETO AL 100% --- */
+  main{
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px 28px 24px !important;
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+  section.view{display:none; animation:fadeIn .25s ease;}
+  section.view.active{display:flex; flex-direction:column; flex:1; min-height:0;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  .view-head{margin-bottom:12px !important;}
+  .view-head .eyebrow{font-family:var(--mono); font-size:12px; color:var(--teal); letter-spacing:.3px;}
+  .view-head h2{font-family:var(--disp); font-size:26px !important; font-weight:600; margin:2px 0 4px; letter-spacing:.2px;}
+
+  /* --- ESTRUCTURA EN 2 COLUMNAS PARA PESTAÑA DESPACHO --- */
+  #view-despacho .despacho-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+    flex: 1;
+    min-height: 0;
+  }
+  #view-despacho .despacho-grid-container > div {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  #view-despacho .despacho-grid-container > div > .group:last-child {
+    flex: 1;
+    min-height: 0;
+  }
+  #view-despacho .despacho-grid-container > div:last-child > .group:last-child {
+    display: flex;
+    flex-direction: column;
+  }
+  #view-despacho .despacho-table-group{
+    display:flex; flex-direction:column; min-height:0;
+  }
+
+  /* ---------- KPI cards ---------- */
+  .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px !important; margin-bottom:12px !important;}
+  .kpi{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:10px 14px !important; position:relative; overflow:hidden;
+  }
+  .kpi::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent,var(--teal));}
+  .kpi .icon{font-size:17px; margin-bottom:4px; display:block;}
+  .kpi .label{font-size:14px !important; color:var(--ink-dim); margin-bottom:4px; font-weight:500;}
+  .kpi .value{font-family:var(--disp); font-size:30px !important; font-weight:600; font-variant-numeric:tabular-nums;}
+  .kpi .unit{font-size:13px; color:var(--ink-faint); margin-left:4px; font-weight:400;}
+
+  .kpi-hero{
+    grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:20px;
+    background:linear-gradient(120deg,#12233A,#0F1B2C 60%);
+    border:1px solid var(--line-strong); flex-wrap:wrap; padding:14px 20px !important; margin-bottom:14px;
+  }
+  .kpi-hero .label{font-size:15px !important; color:var(--ink-dim); text-transform:none;}
+  .kpi-hero .value{font-size:44px !important;}
+  .kpi-hero .breakdown{display:flex; gap:12px; flex-wrap:wrap;}
+  .kpi-hero .breakdown .bchip{
+    text-align:left; min-width:110px; padding:8px 14px !important;
+    background:#0000002E; border:1px solid var(--line-strong); border-radius:10px;
+    border-left:3px solid var(--bar,var(--teal));
+  }
+  .kpi-hero .breakdown .bv{font-family:var(--disp); font-size:23px !important; font-weight:600; font-variant-numeric:tabular-nums;}
+  .kpi-hero .breakdown .bl{font-size:13px !important; color:var(--ink-dim); margin-top:2px; letter-spacing:.2px;}
+
+  /* ---------- panel groups ---------- */
+  .group{margin-bottom:14px !important;}
+  .group-title{font-family:var(--disp); font-size:16.5px !important; font-weight:600; color:var(--ink); margin:0 0 8px !important; display:flex; align-items:center; gap:9px;}
+  .group-title .tag{font-family:var(--mono); font-size:12px; color:var(--ink-faint); font-weight:400; border:1px solid var(--line-strong); border-radius:5px; padding:2px 7px;}
+
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:12px !important;}
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:12px !important;}
+  @media(max-width:900px){
+    .grid-2,.grid-3,#view-despacho .despacho-grid-container{grid-template-columns:1fr !important;}
+  }
+
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 14px 8px !important;}
+  .panel h3{font-size:14.5px !important; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-dim); margin:0 0 8px !important; font-weight:600;}
+  .stat-pair{display:flex; gap:10px !important;}
+  .stat-pair .stat{flex:1; background:var(--panel-raised); border-radius:9px; padding:10px 12px !important; border:1px solid var(--line);}
+  .stat-pair .stat .icon{font-size:17px;}
+  .stat-pair .stat .num{font-family:var(--disp); font-size:26px !important; font-weight:600; margin-top:2px;}
+  .stat-pair .stat .lbl{font-size:13.5px !important; color:var(--ink-faint); margin-top:2px;}
+
+  /* ---------- tables ---------- */
+  .table-wrap{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    flex:1; min-height:0; overflow-y:auto;
+  }
+  #view-despacho .table-wrap {
+    flex: 1;
+    min-height: 160px;
+    overflow-y: auto;
+  }
+  .table-wrap .thead-row{display:flex; padding:10px 14px; border-bottom:1px solid var(--line);}
+  table{width:100%; border-collapse:collapse; font-size:15.5px !important;}
+  thead th{
+    text-align:left; font-size:12.5px !important; text-transform:uppercase; letter-spacing:.4px;
+    color:var(--ink-faint); font-weight:600; padding:10px 12px !important; background:var(--panel-raised);
+    border-bottom:1px solid var(--line-strong); white-space:nowrap; position:sticky; top:0; z-index:2;
+  }
+  tbody td{padding:9px 12px !important; border-bottom:1px solid var(--line); color:var(--ink); font-family:var(--mono); font-size:15px !important; white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#182437;}
+  td.name-cell, th.name-cell{font-family:var(--body); font-weight:500;}
+  td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  th.num{text-align:right;}
+
+  tbody tr.row-proceso{background:#4EA8DE14;}
+  tbody tr.row-terminado{background:#4FBE8C14;}
+  tbody tr.row-proceso:hover{background:#4EA8DE22;}
+  tbody tr.row-terminado:hover{background:#4FBE8C22;}
+
+  .pill{display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:99px; font-size:13px !important; font-weight:600; font-family:var(--mono);}
+  .pill.green{background:#4FBE8C22; color:#6ED4A8;}
+  .pill.amber{background:#F2A93B22; color:#F5BE66;}
+  .pill.coral{background:#E2645A22; color:#F08981;}
+  .pill.gray{background:#5D6C8222; color:var(--ink-faint);}
+  .pill.sky{background:#4EA8DE22; color:#87CBF2;}
+
+  .foot-total{display:flex; justify-content:space-between; padding:8px 14px !important; font-family:var(--mono); font-size:13px !important; color:var(--ink-dim); border-top:1px solid var(--line-strong); background:var(--panel-raised);}
+  .foot-total b{color:var(--ink); font-size:15px !important; margin-left:8px;}
+
+  .scroll-x{overflow-x:auto;}
+
+  footer.notice{
+    width: 100% !important; max-width: 100% !important; margin:10px auto 20px !important; padding:0 28px; color:var(--ink-faint); font-size:12px;
+    display:flex; gap:8px; align-items:baseline;
+  }
+
+  ::-webkit-scrollbar{height:6px; width:6px;}
+  ::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:4px;}
+
+  /* ---------- escenario 16:9 / pantalla completa ---------- */
+  #stageOuter{background:var(--bg); flex:1; display:flex; flex-direction:column; min-height:100vh;}
+  #stage{min-height:100vh; flex:1; display:flex; flex-direction:column;}
+  #stageOuter:fullscreen{
+    background:#000;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #stageOuter:fullscreen #stage{
+    width:100%; aspect-ratio:16/9; max-height:100vh;
+    overflow-y:auto; background:var(--bg);
+  }
+  #stageOuter:-webkit-full-screen{ background:#000; display:flex; align-items:center; justify-content:center; }
+  #stageOuter:-webkit-full-screen #stage{ width:100%; aspect-ratio:16/9; max-height:100vh; overflow-y:auto; background:var(--bg); }
+
+  .fs-btn{
+    appearance:none; border:1px solid var(--line-strong); background:var(--panel);
+    color:var(--ink-dim); font-family:var(--body); font-size:13px; font-weight:500;
+    padding:8px 14px; border-radius:8px; cursor:pointer; white-space:nowrap;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .fs-btn:hover{color:var(--ink); border-color:var(--teal);}
+  .fs-btn.on{
+    color:#04211D; background:var(--amber); border-color:var(--amber);
+    font-weight:600;
+  }
+  .fs-btn.on:hover{color:#04211D; border-color:var(--amber);}
+
+  /* ---------- Control de zoom por pestaña ---------- */
+  .zoom-ctrl{
+    display:flex; align-items:center; gap:2px;
+    background:var(--panel); border:1px solid var(--line-strong); border-radius:8px;
+    padding:2px;
+  }
+  .zoom-ctrl .zoom-btn{
+    appearance:none; border:none; background:transparent; color:var(--ink-dim);
+    font-family:var(--mono); font-size:15px; font-weight:600; line-height:1;
+    width:26px; height:26px; border-radius:6px; cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .zoom-ctrl .zoom-btn:hover{background:var(--panel-raised); color:var(--ink);}
+  .zoom-ctrl .zoom-pct{
+    font-family:var(--mono); font-size:12px; color:var(--ink-faint);
+    min-width:36px; text-align:center; user-select:none;
+  }
+  .zoom-ctrl .zoom-fit{
+    appearance:none; border:none; background:transparent; color:var(--ink-dim);
+    font-family:var(--body); font-size:12.5px; font-weight:500; cursor:pointer;
+    padding:0 8px; height:26px; border-radius:6px; white-space:nowrap;
+    transition:background .15s ease, color .15s ease;
+  }
+  .zoom-ctrl .zoom-fit:hover{background:var(--panel-raised); color:var(--ink);}
+
+  /* --- TIPOGRAFÍA MÁS GRANDE EN DESPACHO --- */
+  #view-despacho .group-title{font-size:17px !important;}
+  #view-despacho .panel h3{font-size:15px !important;}
+  #view-despacho .panel{padding:16px 18px 12px !important;}
+  #view-despacho .kpi{padding:14px 18px !important;}
+  #view-despacho .kpi .label{font-size:15px !important;}
+  #view-despacho .kpi .value{font-size:34px !important;}
+  #view-despacho .kpi .unit{font-size:14px !important;}
+  #view-despacho .kpi .icon{font-size:18px;}
+  #view-despacho .stat-pair .stat{padding:12px 14px !important;}
+  #view-despacho .stat-pair .stat .icon{font-size:20px;}
+  #view-despacho .stat-pair .stat .num{font-size:28px !important;}
+  #view-despacho .stat-pair .stat .lbl{font-size:14px !important;}
+  #view-despacho table{font-size:16px !important;}
+  #view-despacho thead th{font-size:13px !important; padding:12px 14px !important;}
+  #view-despacho tbody td{font-size:15.5px !important; padding:11px 14px !important;}
+  #view-despacho .foot-total{font-size:15px !important; padding:11px 14px !important;}
+  #view-despacho .foot-total b{font-size:17px !important;}
+  #view-despacho .group-title .tag{font-size:12.5px !important;}
+
+  #view-despacho .despacho-grid-container .group-grow{
+    flex:1 !important; display:flex; flex-direction:column; min-height:0;
+  }
+  #view-despacho .group-grow .kpi-row{
+    flex:1; margin-bottom:0 !important;
+  }
+  #view-despacho .group-grow .kpi{
+    display:flex; flex-direction:column; justify-content:center; height:100%;
+    padding:20px 22px !important;
+  }
+  #view-despacho .group-grow .kpi .icon{font-size:24px;}
+  #view-despacho .group-grow .kpi .label{font-size:16px !important; margin-bottom:6px;}
+  #view-despacho .group-grow .kpi .value{font-size:42px !important;}
+  #view-despacho .group-grow .kpi .unit{font-size:15px !important;}
+
+  #view-despacho .despacho-grid-container .group-compact{
+    flex:0 0 auto !important;
+  }
+  #view-despacho .group-compact .table-wrap{
+    flex:0 0 auto; min-height:0 !important;
+  }
+
+  /* =====================================================================
+     PANEL 03 — ABASTECIMIENTO
+     ===================================================================== */
+  #view-abastecimiento .abast-stack{
+    display:flex; flex-direction:column; gap:16px;
+    flex:1; min-height:0;
+  }
+
+  #view-abastecimiento .group-title{font-size:17px !important; margin-bottom:8px !important;}
+  #view-abastecimiento table{font-size:16.5px !important;}
+  #view-abastecimiento thead th{font-size:13px !important; padding:12px 14px !important;}
+  #view-abastecimiento tbody td{font-size:15.5px !important; padding:11px 14px !important;}
+  #view-abastecimiento .foot-total{font-size:15px !important; padding:12px 16px !important;}
+
+  #view-abastecimiento .abast-kpi-row{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:16px !important; flex:0 0 auto;
+  }
+  #view-abastecimiento .abast-kpi{
+    background:linear-gradient(140deg,#13243B,#101A29 65%);
+    border:1px solid var(--line-strong); border-radius:14px;
+    padding:14px 18px !important; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  #view-abastecimiento .abast-kpi::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--accent,var(--teal));
+  }
+  #view-abastecimiento .abast-kpi .icon{font-size:20px; display:block; margin-bottom:4px;}
+  #view-abastecimiento .abast-kpi .label{font-size:14px !important; color:var(--ink-dim); font-weight:500; line-height:1.25;}
+  #view-abastecimiento .abast-kpi .value{
+    font-family:var(--disp); font-size:34px !important; font-weight:600;
+    font-variant-numeric:tabular-nums; line-height:1.05; margin-top:4px;
+  }
+  #view-abastecimiento .abast-kpi .hint{font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); margin-top:6px;}
+
+  .abast-sub-kpi-row{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px !important; margin-bottom:12px !important; flex:0 0 auto;
+  }
+  .abast-sub-kpi{
+    background:var(--panel-raised); border:1px solid var(--line); border-radius:10px;
+    padding:10px 14px !important; position:relative; overflow:hidden;
+  }
+  .abast-sub-kpi::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent,var(--teal));}
+  .abast-sub-kpi .sub-label{font-size:12.5px !important; color:var(--ink-dim); font-weight:500;}
+  .abast-sub-kpi .sub-value{font-family:var(--disp); font-size:24px !important; font-weight:600; font-variant-numeric:tabular-nums; margin-top:2px;}
+  .abast-sub-kpi .sub-hint{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-top:2px;}
+
+  #view-abastecimiento .abast-tables-grid{
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px !important;
+    flex:1; min-height:0;
+  }
+  @media(max-width:1300px){
+    #view-abastecimiento .abast-tables-grid{grid-template-columns:1fr 1fr !important;}
+  }
+  #view-abastecimiento .abast-col{
+    display:flex; flex-direction:column; flex:1; min-height:0;
+  }
+  #view-abastecimiento .abast-col .table-wrap{
+    flex:1; min-height:0; overflow-y:auto;
+  }
+  #view-abastecimiento td.idx{font-family:var(--mono); color:var(--ink-faint); width:46px; text-align:right;}
+  #view-abastecimiento td.art-cell{
+    font-family:var(--body); white-space:normal; line-height:1.35; color:var(--ink-dim);
+  }
+  #view-abastecimiento td.prov-cell{font-family:var(--body); font-weight:600; white-space:normal;}
+  #view-abastecimiento tbody tr:first-child td.prov-cell::after{
+    content:"último"; font-family:var(--mono); font-size:10.5px; font-weight:500;
+    color:var(--teal); background:#35C7B71F; border-radius:99px; padding:2px 8px; margin-left:10px;
+    position:relative; top:-1px;
+  }
+
+  /* =====================================================================
+     PANEL 04 — ACONDICIONAMIENTO
+     ===================================================================== */
+  #view-acondicionamiento .acond-body{
+    display:grid; grid-template-columns:1fr 260px; gap:16px;
+    flex:1; min-height:0;
+  }
+  #view-acondicionamiento .acond-main{display:flex; flex-direction:column; flex:1; min-height:0;}
+  #view-acondicionamiento .acond-rail{display:flex; flex-direction:column; gap:14px; min-height:0;}
+
+  #view-acondicionamiento .acond-subtabs{
+    display:flex; gap:6px; background:var(--panel); padding:4px; border-radius:10px;
+    border:1px solid var(--line); width:max-content; flex:0 0 auto; margin-bottom:12px !important;
+  }
+  #view-acondicionamiento .acond-subtabs button{
+    appearance:none; border:none; background:transparent; color:var(--ink-dim);
+    font-family:var(--body); font-weight:500; font-size:14.5px !important;
+    padding:7px 18px; border-radius:7px; cursor:pointer; transition:background .15s ease, color .15s ease;
+  }
+  #view-acondicionamiento .acond-subtabs button:hover{color:var(--ink);}
+  #view-acondicionamiento .acond-subtabs button.active{
+    background:var(--panel-raised); color:var(--ink); box-shadow:inset 0 0 0 1px var(--line-strong);
+  }
+  #view-acondicionamiento .acond-subview{display:none; flex-direction:column; flex:1; min-height:0;}
+  #view-acondicionamiento .acond-subview.active{display:flex;}
+
+  .acond-rail-row{display:flex; gap:14px; flex-wrap:wrap; flex:0 0 auto;}
+  .acond-rail-row .rail-card{flex:0 0 220px;}
+  .acond-rail-row .rail-card.progress-card{flex:0 0 260px;}
+
+  #view-acondicionamiento .group-title{font-size:17px !important;}
+  #view-acondicionamiento table{font-size:16px !important;}
+  #view-acondicionamiento thead th{font-size:13px !important; padding:12px 14px !important;}
+  #view-acondicionamiento tbody td{font-size:15.5px !important; padding:11px 14px !important;}
+  #view-acondicionamiento td.team-cell{max-width:280px;}
+
+  #view-acondicionamiento .view-head{margin-bottom:8px !important;}
+  #view-acondicionamiento .acond-kpi-groups{
+    display:grid; grid-template-columns:1fr 1fr; gap:12px !important; margin-bottom:14px !important;
+  }
+  #view-acondicionamiento .acond-kpi-block{
+    border:1px solid var(--line-strong); border-radius:14px;
+    padding:10px 12px 12px !important; background:#0000001F;
+  }
+  #view-acondicionamiento .acond-kpi-block-label{
+    font-family:var(--mono); font-size:11.5px !important; letter-spacing:.5px; text-transform:uppercase;
+    color:var(--accent,var(--ink-faint)); margin:0 0 8px !important; display:flex; align-items:center; gap:6px; font-weight:600;
+  }
+  #view-acondicionamiento .acond-kpi-block .kpi-row{margin-bottom:0 !important;}
+  #view-acondicionamiento .kpi-row{gap:10px !important;}
+  #view-acondicionamiento .kpi{padding:8px 12px !important;}
+  #view-acondicionamiento .kpi .icon{font-size:15px; margin-bottom:2px;}
+  #view-acondicionamiento .kpi .label{font-size:12.5px !important; margin-bottom:2px; line-height:1.2;}
+  #view-acondicionamiento .kpi .value{font-size:24px !important;}
+  #view-acondicionamiento .acond-rail{gap:10px !important;}
+  #view-acondicionamiento .rail-card{padding:12px 14px !important;}
+  @media(max-width:900px){
+    #view-acondicionamiento .acond-kpi-groups{grid-template-columns:1fr !important;}
+  }
+
+  .team-cell{white-space:normal !important; font-family:var(--body) !important;}
+  .member{
+    display:inline-block; margin:2px 5px 2px 0; padding:3px 10px;
+    background:#8C8FE81E; border:1px solid #8C8FE83A; border-radius:99px;
+    font-family:var(--body); font-size:13.5px; font-weight:500; color:#B9BBF2; white-space:nowrap;
+  }
+
+  .rail-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:16px 18px !important; position:relative; overflow:hidden;
+    flex:0 0 auto;
+  }
+  .rail-card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent,var(--violet));}
+  .rail-card .rail-label{
+    font-size:14px; color:var(--ink-dim); font-weight:500; display:flex; align-items:center; gap:8px;
+  }
+  .rail-card .rail-value{
+    font-family:var(--disp); font-size:46px !important; font-weight:600;
+    font-variant-numeric:tabular-nums; line-height:1.1; margin-top:2px;
+  }
+  .rail-card .rail-sub{font-family:var(--mono); font-size:12.5px; color:var(--ink-faint); margin-top:2px;}
+
+  .rail-card.progress-card{
+    flex:1 1 auto; min-height:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+    background:linear-gradient(150deg,#13243B,#101A29 70%);
+    border-color:var(--line-strong);
+  }
+  .rail-card.progress-card .rail-label{align-self:flex-start;}
+  .progress-ring{position:relative; width:min(170px,100%); aspect-ratio:1/1; flex:0 0 auto;}
+  .progress-ring svg{width:100%; height:100%; transform:rotate(-90deg);}
+  .progress-ring .ring-bg{fill:none; stroke:#22314733; stroke-width:13;}
+  .progress-ring .ring-fg{
+    fill:none; stroke:var(--prog,var(--green)); stroke-width:13; stroke-linecap:round;
+    transition:stroke-dashoffset .6s ease, stroke .3s ease;
+  }
+  .progress-ring .ring-center{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:2px;
+  }
+  .progress-ring .ring-pct{
+    font-family:var(--disp); font-size:40px; font-weight:700; color:var(--prog,var(--green));
+    font-variant-numeric:tabular-nums; line-height:1;
+  }
+  .progress-ring .ring-cap{font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); letter-spacing:.4px;}
+
+  .progress-bar-wrap{width:100%;}
+  .progress-track{
+    width:100%; height:12px; border-radius:99px; background:#22314755;
+    overflow:hidden; border:1px solid var(--line);
+  }
+  .progress-fill{
+    height:100%; width:0%; border-radius:99px;
+    background:linear-gradient(90deg,var(--prog,var(--green)),#ffffff26);
+    transition:width .6s ease, background .3s ease;
+  }
+  .progress-legend{
+    display:flex; justify-content:space-between; margin-top:7px;
+    font-family:var(--mono); font-size:12.5px; color:var(--ink-faint);
+  }
+  .progress-legend b{color:var(--ink); font-weight:600;}
+
+  @media(max-width:900px){
+    #view-acondicionamiento .acond-body,
+    #view-abastecimiento .abast-tables-grid{grid-template-columns:1fr !important;}
+  }
+</style>
+</head>
+<body>
+
+<div id="stageOuter">
+<div id="stage">
+<header>
+  <div class="brand">
+    <div class="mark">PC</div>
+    <div>
+      <h1>Panel de Control — Logística</h1>
+      <div class="sub" id="periodLabel">Septiembre 2026</div>
+    </div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button class="active" data-view="exportaciones"><span class="dot" style="background:var(--teal)"></span>Exportaciones</button>
+    <button data-view="exportaciones-siguiente"><span class="dot" style="background:var(--sky)"></span>Exportaciones (próx. mes)</button>
+    <button data-view="despacho"><span class="dot" style="background:var(--amber)"></span>Despacho</button>
+    <button data-view="abastecimiento"><span class="dot" style="background:var(--green)"></span>Abastecimiento</button>
+    <button data-view="acondicionamiento"><span class="dot" style="background:var(--violet)"></span>Acondicionamiento</button>
+  </nav>
+
+  <div class="status" id="liveBadge">
+    <span class="pulse"></span>
+    <span id="liveText">Datos de ejemplo — no conectado a Sheets</span>
+  </div>
+
+  <div class="zoom-ctrl" id="zoomCtrl" title="Zoom de esta pestaña">
+    <button class="zoom-btn" onclick="nudgeZoom(-0.05)" title="Alejar esta pestaña">−</button>
+    <span class="zoom-pct" id="zoomLabel">100%</span>
+    <button class="zoom-btn" onclick="nudgeZoom(0.05)" title="Acercar esta pestaña">+</button>
+    <button class="zoom-fit" onclick="autoFitCurrentView()" title="Ajustar esta pestaña al ancho y alto de la pantalla">⤢ Ajustar</button>
+  </div>
+
+  <button id="presenterBtn" class="fs-btn" onclick="togglePresenterMode()">▶ Auto-avance activo</button>
+  <button id="fullscreenBtn" class="fs-btn" onclick="toggleFullscreen()">⛶ Pantalla completa</button>
+</header>
+
+<main>
+
+  <!-- ============ VISTA 1 — EXPORTACIONES ============ -->
+  <section class="view active" id="view-exportaciones">
+    <div class="view-head">
+      <div class="eyebrow">PANEL 01</div>
+      <h2 id="expTitle">Exportaciones de septiembre</h2>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi" style="--accent:var(--teal)"><span class="icon">🚀</span><div class="label">Exportaciones</div><div class="value" data-field="exp_count">7</div></div>
+      <div class="kpi" style="--accent:var(--teal)"><span class="icon">📦</span><div class="label">Pallets</div><div class="value" data-field="exp_pallets">34</div></div>
+      <div class="kpi" style="--accent:var(--teal)"><span class="icon">📋</span><div class="label">Items</div><div class="value" data-field="exp_items">154</div></div>
+      <div class="kpi" style="--accent:var(--teal)"><span class="icon">💊</span><div class="label">Unid. fármaco</div><div class="value" data-field="exp_farmaco">132.330</div></div>
+      <div class="kpi" style="--accent:var(--amber)"><span class="icon">🎁</span><div class="label">Unid. promoción</div><div class="value" data-field="exp_promo">1.300</div></div>
+      <div class="kpi" style="--accent:var(--violet)"><span class="icon">🐾</span><div class="label">Unid. alimento</div><div class="value" data-field="exp_alimento">3.962</div></div>
+    </div>
+
+    <div class="kpi-hero">
+      <div>
+        <div class="label" id="expHeroLabel">Total de unidades a exportar — Septiembre</div>
+        <div class="value" data-field="exp_total_unidades">137.592</div>
+      </div>
+      <div class="breakdown">
+        <div class="bchip" style="--bar:var(--teal)"><div class="bv" data-field="exp_farmaco2">132.330</div><div class="bl">Fármaco</div></div>
+        <div class="bchip" style="--bar:var(--amber)"><div class="bv" data-field="exp_promo2">1.300</div><div class="bl">Promoción</div></div>
+        <div class="bchip" style="--bar:var(--violet)"><div class="bv" data-field="exp_alimento2">3.962</div><div class="bl">Alimento</div></div>
+      </div>
+    </div>
+
+    <div class="group-title">Detalle por nota de empaque <span class="tag">7 registros</span></div>
+    <div class="table-wrap scroll-x">
+      <table>
+        <thead>
+          <tr>
+            <th class="name-cell">Nota empaque</th>
+            <th class="num">Pallets</th>
+            <th class="num">Items</th>
+            <th class="num">Items liberados</th>
+            <th class="num">Progreso</th>
+            <th class="num">Fármaco</th>
+            <th class="num">Promoción</th>
+            <th class="num">Alimento</th>
+            <th class="num">Total unid.</th>
+            <th>Fecha entrega</th>
+            <th>Días que faltan</th>
+            <th>Entregada</th>
+            <th>Diferencia</th>
+          </tr>
+        </thead>
+        <tbody id="exportacionesBody">
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 1B — EXPORTACIONES MES SIGUIENTE ============ -->
+  <section class="view" id="view-exportaciones-siguiente">
+    <div class="view-head">
+      <div class="eyebrow">PANEL 01B · PROYECCIÓN</div>
+      <h2 id="expSiguienteTitle">Exportaciones de octubre</h2>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi" style="--accent:var(--sky)"><span class="icon">🚀</span><div class="label">Exportaciones</div><div class="value" data-field="exp2_count">0</div></div>
+      <div class="kpi" style="--accent:var(--sky)"><span class="icon">📦</span><div class="label">Pallets</div><div class="value" data-field="exp2_pallets">0</div></div>
+      <div class="kpi" style="--accent:var(--sky)"><span class="icon">📋</span><div class="label">Items</div><div class="value" data-field="exp2_items">0</div></div>
+      <div class="kpi" style="--accent:var(--sky)"><span class="icon">💊</span><div class="label">Unid. fármaco</div><div class="value" data-field="exp2_farmaco">0</div></div>
+      <div class="kpi" style="--accent:var(--amber)"><span class="icon">🎁</span><div class="label">Unid. promoción</div><div class="value" data-field="exp2_promo">0</div></div>
+      <div class="kpi" style="--accent:var(--violet)"><span class="icon">🐾</span><div class="label">Unid. alimento</div><div class="value" data-field="exp2_alimento">0</div></div>
+    </div>
+
+    <div class="kpi-hero">
+      <div>
+        <div class="label" id="expSiguienteHeroLabel">Total de unidades a exportar — Octubre</div>
+        <div class="value" data-field="exp2_total_unidades">0</div>
+      </div>
+      <div class="breakdown">
+        <div class="bchip" style="--bar:var(--sky)"><div class="bv" data-field="exp2_farmaco2">0</div><div class="bl">Fármaco</div></div>
+        <div class="bchip" style="--bar:var(--amber)"><div class="bv" data-field="exp2_promo2">0</div><div class="bl">Promoción</div></div>
+        <div class="bchip" style="--bar:var(--violet)"><div class="bv" data-field="exp2_alimento2">0</div><div class="bl">Alimento</div></div>
+      </div>
+    </div>
+
+    <div class="group-title">Detalle por nota de empaque <span class="tag" id="expSiguienteCountTag">0 registros</span></div>
+    <div class="table-wrap scroll-x">
+      <table>
+        <thead>
+          <tr>
+            <th class="name-cell">Nota empaque</th>
+            <th class="num">Pallets</th>
+            <th class="num">Items</th>
+            <th class="num">Items liberados</th>
+            <th class="num">Progreso</th>
+            <th class="num">Fármaco</th>
+            <th class="num">Promoción</th>
+            <th class="num">Alimento</th>
+            <th class="num">Total unid.</th>
+            <th>Fecha entrega</th>
+            <th>Días que faltan</th>
+            <th>Entregada</th>
+            <th>Diferencia</th>
+          </tr>
+        </thead>
+        <tbody id="exportacionesSiguienteBody">
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 2 — DESPACHO / RECEPCIÓN / KG ============ -->
+  <section class="view" id="view-despacho">
+    <div class="view-head">
+      <div class="eyebrow">PANEL 02</div>
+      <h2>Despacho, pedidos recibidos y kilos</h2>
+    </div>
+
+    <div class="despacho-grid-container">
+      <div>
+        <div class="group">
+          <div class="group-title">Despacho y recepción por depósito</div>
+          <div class="grid-3">
+            <div class="panel">
+              <h3>Beccar</h3>
+              <div class="stat-pair">
+                <div class="stat"><span class="icon">🚚</span><div class="num" data-field="beccar_vehiculos">10</div><div class="lbl">Vehículos</div></div>
+                <div class="stat"><span class="icon">📦</span><div class="num" data-field="beccar_pallets">50</div><div class="lbl">Pallets</div></div>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Zárate</h3>
+              <div class="stat-pair">
+                <div class="stat"><span class="icon">🚚</span><div class="num" data-field="zarate_vehiculos">6</div><div class="lbl">Vehículos</div></div>
+                <div class="stat"><span class="icon">📦</span><div class="num" data-field="zarate_pallets">4</div><div class="lbl">Pallets</div></div>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Beccar → Zárate</h3>
+              <div class="stat-pair">
+                <div class="stat"><span class="icon">🚚</span><div class="num" data-field="bz_vehiculos">2</div><div class="lbl">Vehículos</div></div>
+                <div class="stat"><span class="icon">📦</span><div class="num" data-field="bz_pallets">14</div><div class="lbl">Pallets</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="group despacho-table-group">
+          <div class="group-title">Exportaciones despachadas</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th class="name-cell">Exportación</th><th class="num">Pallets despachados</th></tr></thead>
+              <tbody id="despachadasBody"></tbody>
+            </table>
+            <div class="foot-total"><span>Total pallets despachados</span><b data-field="despachadas_total">12</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="group group-grow">
+          <div class="group-title">Pedidos recibidos por categoría <span class="tag" id="todayTag1">hoy</span></div>
+          <div class="kpi-row">
+            <div class="kpi" style="--accent:var(--teal)"><span class="icon">💊</span><div class="label">Fármaco</div><div class="value" data-field="rec_farmaco">24<span class="unit">remitos</span></div></div>
+            <div class="kpi" style="--accent:var(--violet)"><span class="icon">🐾</span><div class="label">Alimento</div><div class="value" data-field="rec_alimento">4<span class="unit">remitos</span></div></div>
+            <div class="kpi" style="--accent:var(--amber)"><span class="icon">🎁</span><div class="label">Promoción</div><div class="value" data-field="rec_promo">0<span class="unit">remitos</span></div></div>
+            <div class="kpi" style="--accent:var(--coral)"><span class="icon">⚕️</span><div class="label">Psicotrópicos</div><div class="value" data-field="rec_psico">0<span class="unit">remitos</span></div></div>
+          </div>
+        </div>
+
+        <div class="group group-grow">
+          <div class="group-title">Kilos — resumen diario <span class="tag" id="todayTag">hoy</span></div>
+          <div class="kpi-row">
+            <div class="kpi" style="--accent:var(--teal)"><span class="icon">💊</span><div class="label">Fármaco</div><div class="value" data-field="kg_dia_farmaco">336,52<span class="unit">kg</span></div></div>
+            <div class="kpi" style="--accent:var(--violet)"><span class="icon">🐾</span><div class="label">Alimento</div><div class="value" data-field="kg_dia_alimento">3.653,50<span class="unit">kg</span></div></div>
+            <div class="kpi" style="--accent:var(--amber)"><span class="icon">🎁</span><div class="label">Promoción</div><div class="value" data-field="kg_dia_promo">0<span class="unit">kg</span></div></div>
+            <div class="kpi" style="--accent:var(--coral)"><span class="icon">⚕️</span><div class="label">Psicotrópicos</div><div class="value" data-field="kg_dia_psico">0<span class="unit">kg</span></div></div>
+          </div>
+        </div>
+
+        <div class="group group-compact">
+          <div class="group-title">Kilos — acumulado mensual por categoría</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th class="name-cell">Categoría</th><th class="num">Remitos</th><th class="num">Kg acumulados</th></tr></thead>
+              <tbody id="acumuladoBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 3 — ABASTECIMIENTO ============ -->
+  <section class="view" id="view-abastecimiento">
+    <div class="view-head">
+      <div class="eyebrow">PANEL 03</div>
+      <h2 id="abastTitle">Abastecimiento — recepción de proveedores</h2>
+    </div>
+
+    <div class="abast-stack">
+      <div class="abast-kpi-row">
+        <div class="abast-kpi" style="--accent:var(--green)">
+          <span class="icon">🤝</span>
+          <div class="label">Proveedores recibidos</div>
+          <div class="value" data-field="proveedores">24</div>
+          <div class="hint" id="abastHintProv">acumulado del mes</div>
+        </div>
+        <div class="abast-kpi" style="--accent:var(--teal)">
+          <span class="icon">📦</span>
+          <div class="label">Ítems recibidos</div>
+          <div class="value" data-field="articulos">50</div>
+          <div class="hint">artículos ingresados a depósito</div>
+        </div>
+        <div class="abast-kpi" style="--accent:var(--violet)">
+          <span class="icon">📈</span>
+          <div class="label" id="acondMesLabel">Total de OP preparadas del mes — a hoy</div>
+          <div class="value" data-field="acond_op_mes">129</div>
+          <div class="hint">órdenes de producción acumuladas</div>
+        </div>
+      </div>
+
+      <div class="abast-tables-grid">
+        <div class="abast-col">
+          <div class="group-title">Últimas recepciones <span class="tag" id="recepcionesCountTag">20 registros</span></div>
+          <div class="table-wrap scroll-x">
+            <table>
+              <thead>
+                <tr>
+                  <th class="num">#</th>
+                  <th class="name-cell">Proveedor</th>
+                  <th class="name-cell">Artículo</th>
+                  <th>Coincidencia</th>
+                </tr>
+              </thead>
+              <tbody id="recepcionesBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="abast-col">
+          <div class="group-title">⚠️ Ítems / artículos en falta <span class="tag" id="itemsFaltaCountTag">0 registros</span></div>
+          <div class="table-wrap scroll-x">
+            <table>
+              <thead>
+                <tr>
+                  <th class="name-cell">Exportación</th>
+                  <th class="name-cell">Código / artículo faltante</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="itemsFaltaBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="abast-col">
+          <div class="group-title">OP preparadas por día ACO <span class="tag" id="opDiaCountTag">0 días</span></div>
+          <div class="abast-sub-kpi-row">
+            <div class="abast-sub-kpi" style="--accent:var(--teal)">
+              <div class="sub-label">📐 Promedio OP/día</div>
+              <div class="sub-value" id="opDiaAvgValue">0</div>
+            </div>
+            <div class="abast-sub-kpi" style="--accent:var(--amber)">
+              <div class="sub-label">🏆 Día con máximo</div>
+              <div class="sub-value" id="opDiaMaxValue">0</div>
+              <div class="sub-hint" id="opDiaMaxFecha">—</div>
+            </div>
+          </div>
+          <div class="table-wrap scroll-x">
+            <table>
+              <thead>
+                <tr>
+                  <th class="name-cell">Fecha</th>
+                  <th class="num">OP preparadas</th>
+                </tr>
+              </thead>
+              <tbody id="opPorDiaBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 4 — ACONDICIONAMIENTO ============ -->
+  <section class="view" id="view-acondicionamiento">
+    <div class="view-head">
+      <div class="eyebrow">PANEL 04</div>
+      <h2>Acondicionamiento</h2>
+    </div>
+
+    <div class="acond-subtabs" id="acondSubtabs">
+      <button type="button" class="active" data-acond-sub="kpis">📊 KPIs</button>
+      <button type="button" data-acond-sub="tabla">📋 Tabla</button>
+    </div>
+
+    <!-- ---- SUB-HOJA 1: KPIs ---- -->
+    <div class="acond-subview active" id="acond-sub-kpis">
+      <div class="acond-kpi-groups">
+        <div class="acond-kpi-block" style="--accent:var(--violet)">
+          <div class="acond-kpi-block-label">📅 Acumulado del mes — Mercado Local</div>
+          <div class="kpi-row">
+            <div class="kpi" style="--accent:var(--violet)"><span class="icon">💊</span><div class="label">Unidades a acondicionar — mes</div><div class="value" data-field="acond_unidades">115.175</div></div>
+            <div class="kpi" style="--accent:var(--violet)"><span class="icon">📦</span><div class="label">Bultos estimados — mes</div><div class="value" data-field="acond_bultos">462</div></div>
+          </div>
+        </div>
+        <div class="acond-kpi-block" style="--accent:var(--sky)">
+          <div class="acond-kpi-block-label">🕐 Hoy — local + exportación</div>
+          <div class="kpi-row">
+            <div class="kpi" style="--accent:var(--sky)"><span class="icon">🗓️</span><div class="label">Unidades a acondicionar hoy</div><div class="value" data-field="acond_unidades_hoy">0</div></div>
+            <div class="kpi" style="--accent:var(--green)"><span class="icon">✅</span><div class="label">Unidades terminadas hoy</div><div class="value" data-field="acond_unidades_terminadas">0</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIEL DE AVANCE DEL DÍA -->
+      <div class="acond-rail-row">
+        <div class="rail-card" style="--accent:var(--violet)">
+          <div class="rail-label">🗂️ OP del día</div>
+          <div class="rail-value" id="railOpsDia">25</div>
+          <div class="rail-sub">órdenes cargadas hoy</div>
+        </div>
+
+        <div class="rail-card" style="--accent:var(--green)">
+          <div class="rail-label">✅ OP terminadas</div>
+          <div class="rail-value" id="railOpsTerm" style="color:var(--green)">24</div>
+          <div class="rail-sub" id="railOpsPend">1 en curso / pendiente</div>
+        </div>
+
+        <div class="rail-card progress-card" style="--accent:var(--teal)">
+          <div class="rail-label">📊 Progreso del día</div>
+          <div class="progress-ring" id="progressRing">
+            <svg viewBox="0 0 140 140">
+              <circle class="ring-bg" cx="70" cy="70" r="58"></circle>
+              <circle class="ring-fg" id="ringFg" cx="70" cy="70" r="58"
+                      stroke-dasharray="364.4" stroke-dashoffset="364.4"></circle>
+            </svg>
+            <div class="ring-center">
+              <div class="ring-pct" id="ringPct">0%</div>
+              <div class="ring-cap">COMPLETADO</div>
+            </div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-legend">
+              <span id="progressLegendLeft"><b>0</b> terminadas</span>
+              <span id="progressLegendRight">de <b>0</b></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- SUB-HOJA 2: Tabla ---- -->
+    <div class="acond-subview" id="acond-sub-tabla">
+      <div class="acond-main">
+        <div class="group-title">Detalle por orden de producción <span class="tag" id="opCountTag">16 registros</span></div>
+        <div class="table-wrap scroll-x">
+          <table>
+            <thead>
+              <tr>
+                <th>OP</th>
+                <th class="name-cell">Artículo</th>
+                <th class="num">Unidades</th>
+                <th class="num">Lote</th>
+                <th class="num">Bultos</th>
+                <th>Estado</th>
+                <th class="name-cell">Integrantes</th>
+              </tr>
+            </thead>
+            <tbody id="acondicionamientoBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+</div>
+</div>
+
+<script>
+const DATA = {
+  kpis: {
+    exp_count:"7", exp_pallets:"34", exp_items:"154", exp_farmaco:"132.330",
+    exp_promo:"1.300", exp_alimento:"3.962", exp_total_unidades:"137.592",
+    exp_farmaco2:"132.330", exp_promo2:"1.300", exp_alimento2:"3.962",
+    beccar_vehiculos:"10", beccar_pallets:"50", zarate_vehiculos:"6", zarate_pallets:"4",
+    bz_vehiculos:"2", bz_pallets:"14", despachadas_total:"12",
+    proveedores:"24", articulos:"50", rec_farmaco:"24", rec_alimento:"4", rec_promo:"0", rec_psico:"0",
+    kg_dia_farmaco:"336,52", kg_dia_alimento:"3.653,50", kg_dia_promo:"0", kg_dia_psico:"0",
+    acond_unidades:"115.175", acond_bultos:"462", acond_ops:"25", acond_op_mes:"129"
+  },
+  acondContadores:{ opsDia:25, terminadas:24, progreso:0.96 },
+  exportaciones:[
+    {nota:"PY 05/2026", pallets:1, items:20, liberados:20, progreso:1, farmaco:5462, promo:0, alimento:0, total:5462, fecha:"5 sept 2026", dias:"5", diasEstado:"green", entregada:"31 ago 2026", diferencia:"5", difEstado:"green"},
+    {nota:"HN 03/2026", pallets:1, items:30, liberados:34, progreso:1, farmaco:2808, promo:1300, alimento:0, total:4108, fecha:"9 sept 2026", dias:"0", diasEstado:"coral", entregada:"—", diferencia:"—", difEstado:"gray"},
+    {nota:"EC 06/2026", pallets:1, items:5, liberados:5, progreso:1, farmaco:2380, promo:0, alimento:0, total:2380, fecha:"9 sept 2026", dias:"", diasEstado:"gray", entregada:"8 sept 2026", diferencia:"1", difEstado:"green"},
+    {nota:"CL MV 07/2026", pallets:13, items:11, liberados:4, progreso:0.36, farmaco:0, promo:0, alimento:3962, total:3962, fecha:"18 sept 2026", dias:"9", diasEstado:"amber", entregada:"—", diferencia:"—", difEstado:"gray"},
+    {nota:"CH 05/2026", pallets:3, items:16, liberados:8, progreso:0.47, farmaco:21346, promo:0, alimento:0, total:21346, fecha:"27 sept 2026", dias:"18", diasEstado:"green", entregada:"—", diferencia:"—", difEstado:"gray"},
+    {nota:"PA 08/2026", pallets:2, items:23, liberados:21, progreso:0.91, farmaco:12942, promo:0, alimento:0, total:12942, fecha:"27 sept 2026", dias:"18", diasEstado:"green", entregada:"—", diferencia:"—", difEstado:"gray"},
+    {nota:"CL 06/2026", pallets:13, items:49, liberados:5, progreso:0.09, farmaco:87392, promo:0, alimento:0, total:87392, fecha:"29 sept 2026", dias:"20", diasEstado:"green", entregada:"—", diferencia:"—", difEstado:"gray"}
+  ],
+  exportacionesSiguiente:[],
+  despachadas:[
+    {exportacion:"Do 03/2026", pallets:1},
+    {exportacion:"Pe 05/2026", pallets:5},
+    {exportacion:"Pe 06/2026", pallets:6}
+  ],
+  acumuladoMensual:[
+    {categoria:"💊 Fármaco", remitos:158, kg:"3.583,14"},
+    {categoria:"🐾 Alimento", remitos:59, kg:"22.202,50"},
+    {categoria:"🎁 Promoción", remitos:10, kg:"55,22"},
+    {categoria:"⚕️ Psicotrópicos", remitos:4, kg:"374,40"}
+  ],
+  acondicionamiento:[
+    {op:"116571", articulo:"PROTELIV x 15 ml", unidades:"1.080", lote:"567", bultos:"2", estado:"", int1:"Norma", int2:"Sandra", int3:"Yasmin", int4:"Belén"},
+    {op:"116574", articulo:"PILERAN GOTAS x 20 ml 3A", unidades:"866,01", lote:"287", bultos:"2", estado:"EN PROCESO", int1:"Cintia", int2:"Bárbara S."},
+    {op:"116577", articulo:"FLURBIPROFENO x 5 ml", unidades:"277,01", lote:"176", bultos:"1", estado:"", int1:"Estela", int2:"Enrique", int3:"Griselda", int4:"Yesica C."},
+    {op:"116588", articulo:"TOTAL FULL LC PERROS -60 Kg x 3 COMPRIMIDOS", unidades:"3.729,01", lote:"228", bultos:"7", estado:"10/09/2026", int1:"Julieta", int2:"Verónica"},
+    {op:"116635", articulo:"VIVIRAM - V x 10 ml", unidades:"362", lote:"228", bultos:"1", estado:"10/09/2026"},
+    {op:"116677", articulo:"TOTAL FULL CG PERROS Y GATOS x 15 ml", unidades:"5.437,01", lote:"504", bultos:"26", estado:"EN PROCESO", int1:"Lucas", int2:"Belén", int3:"Yasmin", int4:"Micaela C."},
+    {op:"116785", articulo:"PROTELIV x 15 ml", unidades:"2.160", lote:"567", bultos:"4", estado:"10/09/2026"},
+    {op:"116797", articulo:"ATRIBEN INYECTABLE x 20 ml 3A", unidades:"2.233,01", lote:"929", bultos:"5", estado:""},
+    {op:"116799", articulo:"TOTAL FULL LC PERROS -10 Kg x 2 COMPRIMIDOS", unidades:"11.340", lote:"110", bultos:"21", estado:""},
+    {op:"116800", articulo:"TOTAL FULL LC GATOS X 2 COMPRIMIDOS", unidades:"3.780", lote:"114", bultos:"7", estado:"10/09/2026"},
+    {op:"116828", articulo:"CARDIAL 5 x 30 comp.", unidades:"206,01", lote:"346", bultos:"0", estado:"EN PROCESO"},
+    {op:"116869", articulo:"PREDNISOLONA HOLLIDAY x 300 COMPRIMIDOS 3A", unidades:"72", lote:"882", bultos:"2", estado:""},
+    {op:"117228", articulo:"ENJUAGUE BUCAL Bioclin x 250 ml", unidades:"1.560,01", lote:"63", bultos:"65", estado:""},
+    {op:"117229", articulo:"TOTAL FULL FENBIOTIC pasta gatos x 8.1g", unidades:"2.385,01", lote:"2", bultos:"19", estado:"EN PROCESO"},
+    {op:"117231", articulo:"MX Viviram-V x 10 ml FRA", unidades:"231", lote:"229", bultos:"#N/A", estado:""}
+  ],
+  opPorDia:[
+    {fecha:"08/09/2026", cantidad:"18"},
+    {fecha:"09/09/2026", cantidad:"22"},
+    {fecha:"10/09/2026", cantidad:"25"}
+  ],
+  recepciones:[
+    {proveedor:"SYMRISE", articulo:"CSENS POWDER 030 — Hidrolizado de menudencias aviares"},
+    {proveedor:"Rosenco", articulo:"Betaína"},
+    {proveedor:"EUROLAB", articulo:"Diethylene glycol monoethyl ether"},
+    {proveedor:"GRAFIPAR", articulo:"Estuche CH Pimocard 10 x 2 blisters — cód. 80-8468-A"},
+    {proveedor:"GRAFIPAR", articulo:"Estuche CH Pileran iny. — cód. 80-0322-G"},
+    {proveedor:"GRAFIPAR", articulo:"Estuche Pileran oral 3A x 20 ml — cód. 80-0146-N"},
+    {proveedor:"GRAFIPAR", articulo:"Estuche Butormin 3A x 10 ml — cód. 80-0148-I"},
+    {proveedor:"GRAFIPAR", articulo:"Estuches CH Ecthol G — cód. 80-0300-J"},
+    {proveedor:"GRAFIPAR", articulo:"Etiqueta CL Attack GMP — cód. 80-2139-A"},
+    {proveedor:"GRAFIPAR", articulo:"Estuche Ciclosporina 1% — cód. 80-2926-C"}
+  ],
+  itemsFalta:[
+    {expo:"CL 06/2026", faltante:"80-0915"},
+    {expo:"CL 06/2026", faltante:"NO EMITIR"},
+    {expo:"CL 06/2026", faltante:"80-0924"},
+    {expo:"CR 05/2026", faltante:"80-1075L 80-9091 80-2153I"},
+    {expo:"BR 03/2026", faltante:"80-2058 F 80-1440 E"}
+  ]
+};
+
+const GOOGLE_SHEETS_CONFIG = {
+  enabled:true,
+  sheetId:"15NxYII3HaIlTgr3hI0pI3KQqyyFqC-jmUMgT9t5VN4w",
+  refreshMinutes:5,
+  tabs:{
+    kpis:            { sheet:"Puente HTML",              range:"A1:B40" },
+    exportaciones:    { sheet:"DASHBOARD EXPORTACIONES",  range:"B24:P34" },
+    exportacionesSiguiente:{ sheet:"DASHBOARD EXPORTACIONES MES SIGUIENTE", range:"B24:P34" },
+    despachadas:      { sheet:"Puente HTML",              range:"A31:B40" },
+    acumuladoMensual: { sheet:"Historial KG",              range:"G1:I5" },
+    acondicionamiento:{ sheet:"ACONDICIONAMIENTO DEL DÍA", range:"A1:L60", tq:"select A,C,E,D,G,H,I,J,K,L" },
+    acondContadores:  { sheet:"ACONDICIONAMIENTO DEL DÍA", range:"N1:P2", headers:1 },
+    acondOpMes:       { sheet:"Aco",                       range:"G1:G2", headers:1 },
+    opPorDia:         { sheet:"Aco",                       range:"D2:E100", headers:0 },
+    recepciones:      { sheet:"Puente HTML",               range:"D1:E25", headers:0 },
+    itemsFalta:       { sheet:"Registro Diario PROVEEDORES", range:"K2:L60", headers:0 }
+  }
+};
+
+async function fetchSheetRange(sheetId, cfg){
+  const params = new URLSearchParams({ tqx:"out:json", sheet: cfg.sheet });
+  if(cfg.range) params.set("range", cfg.range);
+  if(cfg.tq) params.set("tq", cfg.tq);
+  if(cfg.headers !== undefined) params.set("headers", String(cfg.headers));
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?${params.toString()}`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
+  return json.table.rows
+    .map(r => r.c.map(cell => cell ? (cell.f ?? cell.v ?? "") : ""))
+    .filter(row => row.some(v => v !== ""));
+}
+
+function classifyDias(raw){
+  if(raw === "" || raw === null || raw === undefined) return {text:"", cls:"gray"};
+  if(String(raw).toLowerCase().includes("entregado")) return {text:"Entregado", cls:"green"};
+  const n = parseFloat(String(raw).replace(",", "."));
+  if(isNaN(n)) return {text:String(raw), cls:"gray"};
+  const cls = n <= 2 ? "coral" : (n <= 10 ? "amber" : "green");
+  return {text:String(n), cls};
+}
+function classifyDif(raw){
+  if(raw === "" || raw === null || raw === undefined) return {text:"—", cls:"gray"};
+  const n = parseFloat(String(raw).replace(",", "."));
+  if(isNaN(n)) return {text:"—", cls:"gray"};
+  return {text:String(n), cls: n >= 0 ? "green" : "coral"};
+}
+
+function classifyEstado(raw){
+  if(raw === "" || raw === null || raw === undefined) return {text:"—", cls:"", rowCls:""};
+  const val = String(raw).trim();
+  if(val === "") return {text:"—", cls:"", rowCls:""};
+  const upper = val.toUpperCase();
+  if(upper.includes("PROCESO")) return {text:"En proceso", cls:"sky", rowCls:"row-proceso"};
+  if(upper.includes("TERMINADO")) return {text:"Terminado", cls:"green", rowCls:"row-terminado"};
+  return {text:val, cls:"green", rowCls:"row-terminado"};
+}
+
+function parseFechaSheet(raw){
+  if(raw === "" || raw === null || raw === undefined) return null;
+  if(raw instanceof Date) return raw;
+  const txt = String(raw).trim();
+  const m = txt.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if(m){
+    let [, d, mo, y] = m;
+    if(y.length === 2) y = "20" + y;
+    return new Date(+y, +mo - 1, +d);
+  }
+  const d = new Date(txt);
+  return isNaN(d) ? null : d;
+}
+
+function esFechaHastaHoy(raw){
+  const d = parseFechaSheet(raw);
+  if(!d) return true;
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  d.setHours(0,0,0,0);
+  return d <= hoy;
+}
+
+async function loadFromGoogleSheets(){
+  try{
+    const { sheetId, tabs } = GOOGLE_SHEETS_CONFIG;
+    const [kpiRows, expRows, expNextRows, despRows, acumRows, acondRows, contRows, opMesRows, opDiaRows, recepRows, faltaRows] = await Promise.all([
+      fetchSheetRange(sheetId, tabs.kpis),
+      fetchSheetRange(sheetId, tabs.exportaciones),
+      fetchSheetRange(sheetId, tabs.exportacionesSiguiente),
+      fetchSheetRange(sheetId, tabs.despachadas),
+      fetchSheetRange(sheetId, tabs.acumuladoMensual),
+      fetchSheetRange(sheetId, tabs.acondicionamiento),
+      fetchSheetRange(sheetId, tabs.acondContadores),
+      fetchSheetRange(sheetId, tabs.acondOpMes),
+      fetchSheetRange(sheetId, tabs.opPorDia),
+      fetchSheetRange(sheetId, tabs.recepciones),
+      fetchSheetRange(sheetId, tabs.itemsFalta)
+    ]);
+
+    kpiRows.forEach(row => { if(row[0]) DATA.kpis[row[0]] = String(row[1]); });
+
+    DATA.exportaciones = expRows.map(row => ({
+      nota:row[0], pallets:row[2], items:row[3], farmaco:row[4], promo:row[5], alimento:row[6],
+      total:row[7], fecha:row[9], entregada:row[11] || "—", diasRaw:row[10], difRaw:row[12],
+      liberados:row[13], progresoRaw:row[14]
+    }));
+
+    DATA.exportacionesSiguiente = expNextRows.map(row => ({
+      nota:row[0], pallets:row[2], items:row[3], farmaco:row[4], promo:row[5], alimento:row[6],
+      total:row[7], fecha:row[9], entregada:row[11] || "—", diasRaw:row[10], difRaw:row[12],
+      liberados:row[13], progresoRaw:row[14]
+    }));
+
+    DATA.despachadas = despRows.map(row => ({exportacion:row[0], pallets:row[1]}));
+    DATA.acumuladoMensual = acumRows.map(row => ({categoria:row[0], remitos:row[1], kg:row[2]}));
+    DATA.acondicionamiento = acondRows.map(row => ({
+      op:row[0], articulo:row[1], unidades:row[2], lote:row[3], bultos:row[4], estado:row[5],
+      int1:row[6], int2:row[7], int3:row[8], int4:row[9]
+    }));
+
+    if(contRows.length){
+      const c = contRows[0];
+      DATA.acondContadores = { opsDia:c[0], terminadas:c[1], progreso:c[2] };
+    }
+
+    if(opMesRows.length && opMesRows[0][0] !== "") DATA.kpis.acond_op_mes = String(opMesRows[0][0]);
+
+    DATA.opPorDia = opDiaRows
+      .map(row => ({fecha:row[0], cantidad:row[1]}))
+      .filter(r => r.fecha !== "" && esFechaHastaHoy(r.fecha));
+
+    DATA.recepciones = recepRows
+      .map(row => ({proveedor:row[0], articulo:row[1]}))
+      .filter(r => r.proveedor || r.articulo);
+
+    DATA.itemsFalta = faltaRows
+      .map(row => ({expo:row[0], faltante:row[1]}))
+      .filter(r => r.expo || r.faltante);
+
+    renderAll();
+    setLiveStatus(true);
+  }catch(err){
+    console.error("No se pudo cargar el Sheet:", err);
+    setLiveStatus(false, true);
+  }
+}
+
+function setLiveStatus(ok, errored){
+  const badge = document.getElementById("liveBadge");
+  const text = document.getElementById("liveText");
+  if(!GOOGLE_SHEETS_CONFIG.enabled){
+    badge.classList.add("stale");
+    text.textContent = "Datos de ejemplo — no conectado a Sheets";
+    return;
+  }
+  if(errored){
+    badge.classList.add("stale");
+    text.textContent = "Error al conectar con Sheets — mostrando último dato disponible";
+    return;
+  }
+  badge.classList.remove("stale");
+  const now = new Date();
+  text.textContent = `Conectado a Sheets · actualizado ${now.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}`;
+}
+
+function pill(text, estado){ return `<span class="pill ${estado}">${text}</span>`; }
+
+function fmtProgreso(val){
+  if(val === "" || val === null || val === undefined) return '<span style="color:var(--ink-faint)">—</span>';
+  let n = parseFloat(String(val).replace(",", "."));
+  if(isNaN(n)) return '<span style="color:var(--ink-faint)">—</span>';
+  if(n <= 1) n = n * 100;
+  const pct = Math.round(n);
+  const cls = pct >= 100 ? "green" : (pct >= 50 ? "sky" : (pct > 0 ? "amber" : "gray"));
+  return pill(`${pct}%`, cls);
+}
+
+function extractCodes(text){
+  if(!text) return [];
+  const matches = String(text).toUpperCase().match(/\b\d{2}-\d{3,5}[A-Z]?\b/g);
+  return matches ? matches.map(m => m.trim()) : [];
+}
+
+function renderKpis(){
+  document.querySelectorAll("[data-field]").forEach(el=>{
+    const key = el.getAttribute("data-field");
+    if(DATA.kpis[key] === undefined) return;
+    const unitEl = el.querySelector(".unit");
+    el.childNodes[0].nodeValue = DATA.kpis[key];
+    if(unitEl) el.appendChild(unitEl);
+  });
+}
+
+function renderExportaciones(){
+  const body = document.getElementById("exportacionesBody");
+  body.innerHTML = DATA.exportaciones.map(r => {
+    const dias = classifyDias(r.diasRaw !== undefined ? r.diasRaw : r.dias);
+    const dif  = classifyDif(r.difRaw !== undefined ? r.difRaw : r.diferencia);
+    return `
+    <tr>
+      <td class="name-cell">${r.nota}</td>
+      <td class="num">${r.pallets}</td>
+      <td class="num">${r.items}</td>
+      <td class="num" style="font-weight:600; color:var(--teal);">${r.liberados !== undefined && r.liberados !== "" ? r.liberados : "—"}</td>
+      <td class="num">${fmtProgreso(r.progresoRaw)}</td>
+      <td class="num">${fmt(r.farmaco)}</td>
+      <td class="num">${fmt(r.promo)}</td>
+      <td class="num">${fmt(r.alimento)}</td>
+      <td class="num">${fmt(r.total)}</td>
+      <td>${r.fecha}</td>
+      <td>${dias.text!==""? pill(dias.text, dias.cls) : ""}</td>
+      <td>${r.entregada}</td>
+      <td>${dif.text!=="—"? pill(dif.text, dif.cls) : "—"}</td>
+    </tr>`;
+  }).join("");
+}
+
+function setKpiValue(field, value){
+  const el = document.querySelector(`[data-field="${field}"]`);
+  if(!el) return;
+  const unitEl = el.querySelector(".unit");
+  el.childNodes[0].nodeValue = value;
+  if(unitEl) el.appendChild(unitEl);
+}
+
+function toNum(v){
+  if(v === "" || v === undefined || v === null) return 0;
+  const n = typeof v === "number" ? v : parseFloat(String(v).replace(/\./g,"").replace(",","."));
+  return isNaN(n) ? 0 : n;
+}
+
+function renderExportacionesSiguiente(){
+  const rows = DATA.exportacionesSiguiente || [];
+  const body = document.getElementById("exportacionesSiguienteBody");
+  body.innerHTML = rows.map(r => {
+    const dias = classifyDias(r.diasRaw !== undefined ? r.diasRaw : r.dias);
+    const dif  = classifyDif(r.difRaw !== undefined ? r.difRaw : r.diferencia);
+    return `
+    <tr>
+      <td class="name-cell">${r.nota}</td>
+      <td class="num">${r.pallets}</td>
+      <td class="num">${r.items}</td>
+      <td class="num" style="font-weight:600; color:var(--sky);">${r.liberados !== undefined && r.liberados !== "" ? r.liberados : "—"}</td>
+      <td class="num">${fmtProgreso(r.progresoRaw)}</td>
+      <td class="num">${fmt(r.farmaco)}</td>
+      <td class="num">${fmt(r.promo)}</td>
+      <td class="num">${fmt(r.alimento)}</td>
+      <td class="num">${fmt(r.total)}</td>
+      <td>${r.fecha}</td>
+      <td>${dias.text!==""? pill(dias.text, dias.cls) : ""}</td>
+      <td>${r.entregada}</td>
+      <td>${dif.text!=="—"? pill(dif.text, dif.cls) : "—"}</td>
+    </tr>`;
+  }).join("");
+
+  const sumPallets  = rows.reduce((a,r)=>a+toNum(r.pallets),0);
+  const sumItems    = rows.reduce((a,r)=>a+toNum(r.items),0);
+  const sumFarmaco  = rows.reduce((a,r)=>a+toNum(r.farmaco),0);
+  const sumPromo    = rows.reduce((a,r)=>a+toNum(r.promo),0);
+  const sumAlimento = rows.reduce((a,r)=>a+toNum(r.alimento),0);
+  const sumTotal    = rows.reduce((a,r)=>a+toNum(r.total),0);
+
+  setKpiValue("exp2_count", rows.length);
+  setKpiValue("exp2_pallets", sumPallets);
+  setKpiValue("exp2_items", sumItems);
+  setKpiValue("exp2_farmaco", fmt(sumFarmaco));
+  setKpiValue("exp2_promo", fmt(sumPromo));
+  setKpiValue("exp2_alimento", fmt(sumAlimento));
+  setKpiValue("exp2_total_unidades", fmt(sumTotal));
+  setKpiValue("exp2_farmaco2", fmt(sumFarmaco));
+  setKpiValue("exp2_promo2", fmt(sumPromo));
+  setKpiValue("exp2_alimento2", fmt(sumAlimento));
+
+  const tag = document.getElementById("expSiguienteCountTag");
+  if(tag) tag.textContent = `${rows.length} registros`;
+}
+
+function renderDespachadas(){
+  const body = document.getElementById("despachadasBody");
+  body.innerHTML = DATA.despachadas.map(r => `
+    <tr><td class="name-cell">${r.exportacion}</td><td class="num">${r.pallets}</td></tr>`).join("");
+}
+
+function renderAcumulado(){
+  const body = document.getElementById("acumuladoBody");
+  body.innerHTML = DATA.acumuladoMensual.map(r => `
+    <tr><td class="name-cell">${r.categoria}</td><td class="num">${r.remitos}</td><td class="num">${r.kg} kg</td></tr>`).join("");
+}
+
+/* ---------- PANEL 03 · Abastecimiento ---------- */
+function renderRecepcionesYFaltantes(){
+  const recepBody = document.getElementById("recepcionesBody");
+  const faltaBody = document.getElementById("itemsFaltaBody");
+  if(!recepBody || !faltaBody) return;
+
+  const recepciones = DATA.recepciones || [];
+  const faltantes = DATA.itemsFalta || [];
+
+  const missingCodesMap = new Map();
+  faltantes.forEach(item => {
+    extractCodes(item.faltante).forEach(code => {
+      if(!missingCodesMap.has(code)) missingCodesMap.set(code, []);
+      missingCodesMap.get(code).push(item.expo);
+    });
+  });
+
+  const matchedCodesFromRecep = new Set();
+
+  recepBody.innerHTML = recepciones.map((r,i) => {
+    const codes = extractCodes(r.articulo);
+    let matchedCode = null;
+    for(const code of codes){
+      if(missingCodesMap.has(code)){ matchedCode = code; matchedCodesFromRecep.add(code); break; }
+    }
+    const isPriority = matchedCode !== null;
+    const rowStyle = isPriority ? 'style="background:#F2A93B28; font-weight:500;"' : '';
+    const badgeCell = isPriority
+      ? pill(`🔥 ${matchedCode}`, 'amber')
+      : '<span style="color:var(--ink-faint)">—</span>';
+    return `
+    <tr ${rowStyle}>
+      <td class="idx num">${i+1}</td>
+      <td class="prov-cell">${r.proveedor || "—"}</td>
+      <td class="art-cell">${r.articulo || "—"}</td>
+      <td>${badgeCell}</td>
+    </tr>`;
+  }).join("");
+  const recepTag = document.getElementById("recepcionesCountTag");
+  if(recepTag) recepTag.textContent = `${recepciones.length} ${recepciones.length === 1 ? "registro" : "registros"}`;
+
+  faltaBody.innerHTML = faltantes.map(f => {
+    const codes = extractCodes(f.faltante);
+    const isReceived = codes.some(c => matchedCodesFromRecep.has(c));
+    const rowStyle = isReceived ? 'style="background:#4FBE8C28; font-weight:500;"' : '';
+    const statusCell = isReceived ? pill('✅ Ingresado', 'green') : pill('Pendiente', 'coral');
+    return `
+    <tr ${rowStyle}>
+      <td class="name-cell" style="font-weight:600; color:var(--teal);">${f.expo || "—"}</td>
+      <td class="name-cell">${f.faltante || "—"}</td>
+      <td>${statusCell}</td>
+    </tr>`;
+  }).join("");
+  const faltaTag = document.getElementById("itemsFaltaCountTag");
+  if(faltaTag) faltaTag.textContent = `${faltantes.length} ${faltantes.length === 1 ? "registro" : "registros"}`;
+}
+
+function renderOpPorDia(){
+  const body = document.getElementById("opPorDiaBody");
+  if(!body) return;
+  const rows = (DATA.opPorDia || []).filter(r => toNum(r.cantidad) > 0);
+  body.innerHTML = rows.map(r => `
+    <tr><td class="name-cell">${r.fecha}</td><td class="num">${fmt(r.cantidad)}</td></tr>`).join("");
+  const tag = document.getElementById("opDiaCountTag");
+  if(tag) tag.textContent = `${rows.length} ${rows.length === 1 ? "día" : "días"}`;
+
+  const stats = computeOpDiaStats(rows);
+  setTextIfExists("opDiaAvgValue", stats.dias ? fmtDecimal(stats.avg) : "0");
+  setTextIfExists("opDiaMaxValue", stats.dias ? fmt(stats.maxCantidad) : "0");
+  setTextIfExists("opDiaMaxFecha", stats.dias ? stats.maxFecha : "—");
+}
+
+function computeOpDiaStats(rows){
+  if(!rows || !rows.length) return { avg:0, maxCantidad:0, maxFecha:"—", dias:0 };
+  const total = rows.reduce((a, r) => a + toNum(r.cantidad), 0);
+  let maxRow = rows[0];
+  rows.forEach(r => { if(toNum(r.cantidad) > toNum(maxRow.cantidad)) maxRow = r; });
+  return { avg: total / rows.length, maxCantidad: toNum(maxRow.cantidad), maxFecha: maxRow.fecha, dias: rows.length };
+}
+
+function setTextIfExists(id, txt){
+  const el = document.getElementById(id);
+  if(el) el.textContent = txt;
+}
+
+function fmtDecimal(n){
+  if(n === "" || n === undefined || n === null) return "0";
+  return Number(n).toLocaleString("es-AR", { minimumFractionDigits:1, maximumFractionDigits:1 });
+}
+
+function renderAcondicionamiento(){
+  const body = document.getElementById("acondicionamientoBody");
+  body.innerHTML = DATA.acondicionamiento.map(r => {
+    const estado = classifyEstado(r.estado);
+    const estadoCell = estado.cls ? pill(estado.text, estado.cls) : `<span style="color:var(--ink-faint)">—</span>`;
+    const equipo = [r.int1, r.int2, r.int3, r.int4]
+      .map(v => String(v ?? "").trim())
+      .filter(v => v !== "" && v !== "#N/A");
+    const equipoCell = equipo.length
+      ? equipo.map(n => `<span class="member">${n}</span>`).join("")
+      : `<span style="color:var(--ink-faint)">—</span>`;
+    return `
+    <tr class="${estado.rowCls}"><td>${r.op}</td><td class="name-cell">${r.articulo}</td><td class="num">${r.unidades}</td><td class="num">${r.lote}</td><td class="num">${r.bultos}</td><td>${estadoCell}</td><td class="team-cell">${equipoCell}</td></tr>`;
+  }).join("");
+  document.getElementById("opCountTag").textContent = `${DATA.acondicionamiento.length} registros`;
+
+  const totalUnidadesHoy = DATA.acondicionamiento.reduce((a, r) => a + toNum(r.unidades), 0);
+  setKpiValue("acond_unidades_hoy", fmt(totalUnidadesHoy));
+
+  const totalUnidadesTerminadas = DATA.acondicionamiento
+    .filter(r => classifyEstado(r.estado).rowCls === "row-terminado")
+    .reduce((a, r) => a + toNum(r.unidades), 0);
+  setKpiValue("acond_unidades_terminadas", fmt(totalUnidadesTerminadas));
+}
+
+function parsePorcentaje(raw){
+  if(raw === "" || raw === null || raw === undefined) return null;
+  if(typeof raw === "number") return raw <= 1 ? raw * 100 : raw;
+  let txt = String(raw).trim();
+  const esPct = txt.includes("%");
+  txt = txt.replace("%","").trim();
+  if(txt.includes(",")) txt = txt.replace(/\./g,"").replace(",",".");
+  const n = parseFloat(txt);
+  if(isNaN(n)) return null;
+  if(esPct) return n;
+  return n <= 1 ? n * 100 : n;
+}
+
+function colorProgreso(pct){
+  if(pct >= 85) return "var(--green)";
+  if(pct >= 60) return "var(--teal)";
+  if(pct >= 35) return "var(--amber)";
+  return "var(--coral)";
+}
+
+function renderAcondContadores(){
+  const c = DATA.acondContadores || {};
+  const filas = DATA.acondicionamiento || [];
+
+  let opsDia = toNum(c.opsDia);
+  if(!opsDia) opsDia = filas.length;
+
+  let term = toNum(c.terminadas);
+  if(c.terminadas === "" || c.terminadas === undefined || c.terminadas === null){
+    term = filas.filter(r => classifyEstado(r.estado).rowCls === "row-terminado").length;
+  }
+  term = Math.min(term, opsDia);
+
+  let pct = parsePorcentaje(c.progreso);
+  if(pct === null) pct = opsDia > 0 ? (term / opsDia) * 100 : 0;
+  pct = Math.max(0, Math.min(100, pct));
+
+  const pend = Math.max(0, opsDia - term);
+  const color = colorProgreso(pct);
+
+  const setTxt = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+  setTxt("railOpsDia", fmt(opsDia));
+  setTxt("railOpsTerm", fmt(term));
+  setTxt("railOpsPend", pend === 0 ? "día completo 🎉" : `${pend} ${pend === 1 ? "pendiente" : "pendientes"} / en curso`);
+
+  setKpiValue("acond_ops", fmt(opsDia));
+
+  const ring = document.getElementById("progressRing");
+  const fg = document.getElementById("ringFg");
+  if(ring) ring.style.setProperty("--prog", color);
+  if(fg){
+    const C = 2 * Math.PI * 58;
+    fg.setAttribute("stroke-dasharray", C.toFixed(1));
+    fg.setAttribute("stroke-dashoffset", (C * (1 - pct / 100)).toFixed(1));
+  }
+  setTxt("ringPct", `${Math.round(pct)}%`);
+
+  const fill = document.getElementById("progressFill");
+  if(fill) fill.style.width = `${pct}%`;
+  const l = document.getElementById("progressLegendLeft");
+  const r = document.getElementById("progressLegendRight");
+  if(l) l.innerHTML = `<b>${fmt(term)}</b> terminadas`;
+  if(r) r.innerHTML = `de <b>${fmt(opsDia)}</b> OP`;
+}
+
+function fmt(n){
+  if(n === "" || n === undefined || n === null) return "0";
+  const num = typeof n === "number" ? n : parseFloat(String(n).replace(/\./g,"").replace(",","."));
+  if(isNaN(num)) return n;
+  return num.toLocaleString("es-AR");
+}
+
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+function capitalizar(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+function getMesInfo(offset){
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + offset);
+  return { nombre: MESES[d.getMonth()], anio: d.getFullYear() };
+}
+function updateDynamicLabels(){
+  const actual = getMesInfo(0);
+  const siguiente = getMesInfo(1);
+
+  const periodEl = document.getElementById("periodLabel");
+  if(periodEl) periodEl.textContent = `${capitalizar(actual.nombre)} ${actual.anio}`;
+
+  const expTitleEl = document.getElementById("expTitle");
+  if(expTitleEl) expTitleEl.textContent = `Exportaciones de ${actual.nombre}`;
+
+  const expHeroEl = document.getElementById("expHeroLabel");
+  if(expHeroEl) expHeroEl.textContent = `Total de unidades a exportar — ${capitalizar(actual.nombre)}`;
+
+  const expSigTitleEl = document.getElementById("expSiguienteTitle");
+  if(expSigTitleEl) expSigTitleEl.textContent = `Exportaciones de ${siguiente.nombre}`;
+
+  const expSigHeroEl = document.getElementById("expSiguienteHeroLabel");
+  if(expSigHeroEl) expSigHeroEl.textContent = `Total de unidades a exportar — ${capitalizar(siguiente.nombre)}`;
+
+  const acondMesEl = document.getElementById("acondMesLabel");
+  if(acondMesEl) acondMesEl.textContent = `Total de OP preparadas de ${actual.nombre} — a hoy`;
+
+  const abastHint = document.getElementById("abastHintProv");
+  if(abastHint) abastHint.textContent = `acumulado de ${actual.nombre}`;
+}
+
+function renderAll(){
+  updateDynamicLabels();
+  renderKpis();
+  renderExportaciones();
+  renderExportacionesSiguiente();
+  renderDespachadas();
+  renderAcumulado();
+  renderAcondicionamiento();
+  renderAcondContadores();
+  renderRecepcionesYFaltantes();
+  renderOpPorDia();
+}
+
+const AUTO_ADVANCE_SECONDS = 60;
+const VIEWS = ["exportaciones", "exportaciones-siguiente", "despacho", "abastecimiento", "acondicionamiento"];
+let currentViewIndex = 0;
+let autoAdvanceTimer = null;
+let presenterMode = false;
+
+/* Cambia la sub-hoja activa de Acondicionamiento ('kpis' o 'tabla') */
+function setAcondSubView(target){
+  const btn = document.querySelector(`#acondSubtabs button[data-acond-sub="${target}"]`);
+  if(!btn) return;
+  document.querySelectorAll("#acondSubtabs button").forEach(b => b.classList.toggle("active", b === btn));
+  document.querySelectorAll("#view-acondicionamiento .acond-subview").forEach(s => s.classList.toggle("active", s.id === `acond-sub-${target}`));
+  if(VIEWS[currentViewIndex] === "acondicionamiento"){
+    const state = viewZoomState["acondicionamiento"];
+    if(!state || !state.manual) autoFitView("acondicionamiento", false);
+  }
+}
+
+function goToView(viewName){
+  const idx = VIEWS.indexOf(viewName);
+  if(idx === -1) return;
+  currentViewIndex = idx;
+  document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("active", b.dataset.view === viewName));
+  document.querySelectorAll("section.view").forEach(s => s.classList.toggle("active", s.id === `view-${viewName}`));
+  
+  // Si volvemos a entrar a Acondicionamiento desde otro panel, aseguramos empezar siempre en la sub-pestaña KPIs
+  if(viewName === "acondicionamiento"){
+    setAcondSubView("kpis");
+  }
+
+  applyOrFitZoom(viewName);
+}
+
+const ZOOM_STORAGE_KEY = "panelLogisticaZoomPorVista";
+const ZOOM_MIN = 0.5, ZOOM_MAX = 1;
+let viewZoomState = {};
+try{
+  viewZoomState = JSON.parse(localStorage.getItem(ZOOM_STORAGE_KEY)) || {};
+}catch(e){ viewZoomState = {}; }
+
+function saveZoomState(){
+  try{ localStorage.setItem(ZOOM_STORAGE_KEY, JSON.stringify(viewZoomState)); }catch(e){}
+}
+
+function getViewSection(viewName){
+  return document.getElementById(`view-${viewName}`);
+}
+
+function updateZoomLabel(viewName){
+  const lbl = document.getElementById("zoomLabel");
+  if(!lbl) return;
+  const state = viewZoomState[viewName];
+  lbl.textContent = `${Math.round((state ? state.zoom : 1) * 100)}%`;
+}
+
+function setViewZoom(viewName, zoom, manual){
+  zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(zoom * 100) / 100));
+  viewZoomState[viewName] = { zoom, manual: !!manual };
+  const sec = getViewSection(viewName);
+  if(sec) sec.style.zoom = zoom;
+  saveZoomState();
+  if(viewName === VIEWS[currentViewIndex]) updateZoomLabel(viewName);
+}
+
+function computeFitZoom(viewName){
+  const sec = getViewSection(viewName);
+  const mainEl = document.querySelector("main");
+  const headerEl = document.querySelector("header");
+  if(!sec || !mainEl || !headerEl) return 1;
+
+  const prevZoom = sec.style.zoom;
+  sec.style.zoom = 1;
+
+  const mainStyles = getComputedStyle(mainEl);
+  const padTop = parseFloat(mainStyles.paddingTop) || 0;
+  const padBottom = parseFloat(mainStyles.paddingBottom) || 0;
+  const padLeft = parseFloat(mainStyles.paddingLeft) || 0;
+  const padRight = parseFloat(mainStyles.paddingRight) || 0;
+
+  const availH = window.innerHeight - headerEl.offsetHeight - padTop - padBottom - 6;
+  const availW = mainEl.clientWidth - padLeft - padRight;
+  const needW = sec.scrollWidth;
+  const needH = sec.scrollHeight;
+
+  sec.style.zoom = prevZoom || 1;
+
+  let scale = Math.min(availW / (needW || 1), availH / (needH || 1), 1);
+  if(!isFinite(scale) || scale <= 0) scale = 1;
+  return scale;
+}
+
+function autoFitView(viewName, manual){
+  setViewZoom(viewName, computeFitZoom(viewName), manual);
+}
+
+function autoFitCurrentView(){
+  autoFitView(VIEWS[currentViewIndex], false);
+}
+
+function nudgeZoom(delta){
+  const viewName = VIEWS[currentViewIndex];
+  const state = viewZoomState[viewName] || { zoom: 1 };
+  setViewZoom(viewName, state.zoom + delta, true);
+}
+
+function applyOrFitZoom(viewName){
+  requestAnimationFrame(() => {
+    const state = viewZoomState[viewName];
+    if(state){
+      const sec = getViewSection(viewName);
+      if(sec) sec.style.zoom = state.zoom;
+      updateZoomLabel(viewName);
+    }else{
+      autoFitView(viewName, false);
+    }
+  });
+}
+
+function refitOnResize(){
+  const viewName = VIEWS[currentViewIndex];
+  const state = viewZoomState[viewName];
+  if(!state || !state.manual){
+    autoFitView(viewName, false);
+  }
+}
+window.addEventListener("resize", refitOnResize);
+document.addEventListener("fullscreenchange", refitOnResize);
+document.addEventListener("webkitfullscreenchange", refitOnResize);
+
+/* Lógica corregida para recorrer las sub-hojas de Acondicionamiento antes de reiniciar el ciclo */
+function nextView(){
+  const currentView = VIEWS[currentViewIndex];
+  
+  if(currentView === "acondicionamiento"){
+    const isKpisActive = document.getElementById("acond-sub-kpis").classList.contains("active");
+    if(isKpisActive){
+      // Si estamos en la sub-hoja KPIs, pasamos a la sub-hoja Tabla
+      setAcondSubView("tabla");
+      return;
+    }
+  }
+
+  // Avanzar al siguiente panel de la lista principal
+  currentViewIndex = (currentViewIndex + 1) % VIEWS.length;
+  goToView(VIEWS[currentViewIndex]);
+}
+
+function resetAutoAdvance(){
+  if(presenterMode) return;
+  clearInterval(autoAdvanceTimer);
+  autoAdvanceTimer = setInterval(nextView, AUTO_ADVANCE_SECONDS * 1000);
+}
+
+function togglePresenterMode(){
+  presenterMode = !presenterMode;
+  const btn = document.getElementById("presenterBtn");
+  if(presenterMode){
+    clearInterval(autoAdvanceTimer);
+    if(btn){
+      btn.textContent = "⏸ Modo presentador (fijo)";
+      btn.classList.add("on");
+    }
+  }else{
+    if(btn){
+      btn.textContent = "▶ Auto-avance activo";
+      btn.classList.remove("on");
+    }
+    resetAutoAdvance();
+  }
+}
+
+document.getElementById("tabs").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-view]");
+  if(!btn) return;
+  goToView(btn.dataset.view);
+});
+
+document.getElementById("acondSubtabs")?.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-acond-sub]");
+  if(!btn) return;
+  setAcondSubView(btn.dataset.acondSub);
+});
+
+document.addEventListener("click", resetAutoAdvance);
+
+function toggleFullscreen(){
+  const el = document.getElementById("stageOuter");
+  if(!document.fullscreenElement){
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  }else{
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+}
+
+renderAll();
+setLiveStatus(false);
+resetAutoAdvance();
+applyOrFitZoom(VIEWS[currentViewIndex]);
+if(GOOGLE_SHEETS_CONFIG.enabled){
+  loadFromGoogleSheets();
+  setInterval(loadFromGoogleSheets, GOOGLE_SHEETS_CONFIG.refreshMinutes * 60 * 1000);
+}
+</script>
+</body>
+</html>
