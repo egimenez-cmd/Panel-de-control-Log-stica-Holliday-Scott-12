@@ -191,6 +191,8 @@
   }
   tbody td{padding:9px 12px !important; border-bottom:1px solid var(--line); color:var(--ink); font-family:var(--mono); font-size:15px !important; white-space:nowrap;}
   tbody tr:last-child td{border-bottom:none;}
+  tfoot tr.row-total td{padding:9px 12px !important; border-top:2px solid var(--line-strong); background:var(--panel-raised); color:var(--ink); font-family:var(--mono); font-size:15px !important; font-weight:700; white-space:nowrap;}
+  #view-despacho tfoot tr.row-total td{font-size:15.5px !important; padding:11px 14px !important;}
   tbody tr:hover{background:#182437;}
   td.name-cell, th.name-cell{font-family:var(--body); font-weight:500;}
   td.num{text-align:right; font-variant-numeric:tabular-nums;}
@@ -735,6 +737,7 @@
             <table>
               <thead><tr><th class="name-cell">Categoría</th><th class="num">Remitos</th><th class="num">Kg acumulados</th></tr></thead>
               <tbody id="acumuladoBody"></tbody>
+              <tfoot id="acumuladoFoot"></tfoot>
             </table>
           </div>
         </div>
@@ -1294,6 +1297,14 @@ function renderAcumulado(){
   const body = document.getElementById("acumuladoBody");
   body.innerHTML = DATA.acumuladoMensual.map(r => `
     <tr><td class="name-cell">${r.categoria}</td><td class="num">${r.remitos}</td><td class="num">${r.kg} kg</td></tr>`).join("");
+
+  const foot = document.getElementById("acumuladoFoot");
+  if(foot){
+    const totRemitos = DATA.acumuladoMensual.reduce((a, r) => a + toNum(r.remitos), 0);
+    const totKg = DATA.acumuladoMensual.reduce((a, r) => a + toNum(r.kg), 0);
+    foot.innerHTML = `
+      <tr class="row-total"><td class="name-cell">Total</td><td class="num">${totRemitos.toLocaleString("es-AR")}</td><td class="num">${totKg.toLocaleString("es-AR", {minimumFractionDigits:2, maximumFractionDigits:2})} kg</td></tr>`;
+  }
 }
 
 /* ---------- PANEL 03 · Abastecimiento ---------- */
