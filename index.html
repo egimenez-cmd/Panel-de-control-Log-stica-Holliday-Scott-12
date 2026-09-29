@@ -310,6 +310,18 @@
   #view-despacho .group-grow .kpi .value{font-size:42px !important;}
   #view-despacho .group-grow .kpi .unit{font-size:15px !important;}
 
+  /* Despacho y recepción por depósito: contadores grandes, mismo espacio que los de kg */
+  #view-despacho .group-deposito .grid-3{flex:1; min-height:0; margin-bottom:0;}
+  #view-despacho .group-deposito .panel{display:flex; flex-direction:column; padding:18px 20px !important;}
+  #view-despacho .group-deposito .panel h3{font-size:17px !important; margin-bottom:12px !important;}
+  #view-despacho .group-deposito .stat-pair{flex:1; gap:12px !important;}
+  #view-despacho .group-deposito .stat-pair .stat{
+    display:flex; flex-direction:column; justify-content:center; padding:16px 16px !important;
+  }
+  #view-despacho .group-deposito .stat-pair .stat .icon{font-size:26px;}
+  #view-despacho .group-deposito .stat-pair .stat .num{font-size:46px !important; line-height:1.05; margin-top:4px;}
+  #view-despacho .group-deposito .stat-pair .stat .lbl{font-size:16px !important; margin-top:4px;}
+
   #view-despacho .despacho-grid-container .group-compact{
     flex:0 0 auto !important;
   }
@@ -332,12 +344,12 @@
   #view-abastecimiento .foot-total{font-size:15px !important; padding:12px 16px !important;}
 
   #view-abastecimiento .abast-kpi-row{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:16px !important; flex:0 0 auto;
+    display:grid; grid-template-columns:repeat(2,1fr); gap:16px !important; flex:0 0 auto; margin-bottom:16px;
   }
   #view-abastecimiento .abast-kpi{
     background:linear-gradient(140deg,#13243B,#101A29 65%);
     border:1px solid var(--line-strong); border-radius:14px;
-    padding:14px 18px !important; position:relative; overflow:hidden;
+    padding:18px 22px !important; position:relative; overflow:hidden;
     display:flex; flex-direction:column; justify-content:center;
   }
   #view-abastecimiento .abast-kpi::before{
@@ -346,10 +358,36 @@
   #view-abastecimiento .abast-kpi .icon{font-size:20px; display:block; margin-bottom:4px;}
   #view-abastecimiento .abast-kpi .label{font-size:14px !important; color:var(--ink-dim); font-weight:500; line-height:1.25;}
   #view-abastecimiento .abast-kpi .value{
-    font-family:var(--disp); font-size:34px !important; font-weight:600;
+    font-family:var(--disp); font-size:44px !important; font-weight:600;
     font-variant-numeric:tabular-nums; line-height:1.05; margin-top:4px;
   }
   #view-abastecimiento .abast-kpi .hint{font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); margin-top:6px;}
+
+  #view-abastecimiento .abast-subtabs{
+    display:flex; gap:6px; background:var(--panel); padding:4px; border-radius:10px;
+    border:1px solid var(--line); width:max-content; flex:0 0 auto; margin-bottom:12px !important;
+  }
+  #view-abastecimiento .abast-subtabs button{
+    appearance:none; border:none; background:transparent; color:var(--ink-dim);
+    font-family:var(--body); font-weight:500; font-size:14.5px !important;
+    padding:7px 18px; border-radius:7px; cursor:pointer; transition:background .15s ease, color .15s ease;
+  }
+  #view-abastecimiento .abast-subtabs button:hover{color:var(--ink);}
+  #view-abastecimiento .abast-subtabs button.active{
+    background:var(--panel-raised); color:var(--ink); box-shadow:inset 0 0 0 1px var(--line-strong);
+  }
+  #view-abastecimiento .abast-subview{display:none; flex-direction:column; flex:1; min-height:0;}
+  #view-abastecimiento .abast-subview.active{display:flex;}
+
+  #view-abastecimiento .abast-kpi-avg{
+    margin-top:10px; padding-top:8px; border-top:1px dashed var(--line-strong);
+  }
+  #view-abastecimiento .abast-kpi-avg .avg-label{font-size:14px !important; color:var(--ink-dim); font-weight:500;}
+  #view-abastecimiento .abast-kpi-avg .avg-value{
+    font-family:var(--disp); font-size:30px !important; font-weight:600;
+    font-variant-numeric:tabular-nums; margin-top:2px; line-height:1.1;
+  }
+  #view-abastecimiento .abast-kpi-avg .avg-hint{font-family:var(--mono); font-size:12px; min-height:1em; color:var(--ink-faint); margin-top:2px;}
 
   .abast-sub-kpi-row{
     display:grid; grid-template-columns:1fr 1fr; gap:10px !important; margin-bottom:12px !important; flex:0 0 auto;
@@ -364,12 +402,10 @@
   .abast-sub-kpi .sub-hint{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-top:2px;}
 
   #view-abastecimiento .abast-tables-grid{
-    display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px !important;
+    display:grid; grid-template-columns:1fr 1fr; gap:18px !important;
     flex:1; min-height:0;
   }
-  @media(max-width:1300px){
-    #view-abastecimiento .abast-tables-grid{grid-template-columns:1fr 1fr !important;}
-  }
+  #view-abastecimiento .abast-tables-grid.abast-op-grid{grid-template-columns:minmax(0,760px);}
   #view-abastecimiento .abast-col{
     display:flex; flex-direction:column; flex:1; min-height:0;
   }
@@ -671,7 +707,7 @@
 
     <div class="despacho-grid-container">
       <div>
-        <div class="group">
+        <div class="group group-grow group-deposito">
           <div class="group-title">Despacho y recepción por depósito</div>
           <div class="grid-3">
             <div class="panel">
@@ -752,43 +788,41 @@
       <h2 id="abastTitle">Abastecimiento — recepción de proveedores</h2>
     </div>
 
-    <div class="abast-stack">
+    <div class="acond-subtabs abast-subtabs" id="abastSubtabs">
+      <button type="button" class="active" data-abast-sub="recepcion">📥 Recepción</button>
+      <button type="button" data-abast-sub="op">⚙️ OP</button>
+    </div>
+
+    <!-- ---- SUB-HOJA 1: RECEPCIÓN ---- -->
+    <div class="abast-subview active" id="abast-sub-recepcion">
       <div class="abast-kpi-row">
         <div class="abast-kpi" style="--accent:var(--green)">
           <span class="icon">🤝</span>
           <div class="label">Proveedores recibidos</div>
           <div class="value" data-field="proveedores">24</div>
           <div class="hint" id="abastHintProv">acumulado del mes</div>
+          <div class="abast-kpi-avg">
+            <div class="avg-label">📐 Promedio de proveedores recibidos</div>
+            <div class="avg-value" id="provDiaAvgValue">0</div>
+            <div class="avg-hint" id="provDiaAvgHint">—</div>
+          </div>
         </div>
         <div class="abast-kpi" style="--accent:var(--teal)">
           <span class="icon">📦</span>
           <div class="label">Ítems recibidos</div>
           <div class="value" data-field="articulos">50</div>
           <div class="hint">artículos ingresados a depósito</div>
-        </div>
-        <div class="abast-kpi" style="--accent:var(--violet)">
-          <span class="icon">📈</span>
-          <div class="label" id="acondMesLabel">Total de OP preparadas del mes — a hoy</div>
-          <div class="value" data-field="acond_op_mes">129</div>
-          <div class="hint">órdenes de producción acumuladas</div>
+          <div class="abast-kpi-avg">
+            <div class="avg-label">📐 Promedio de ítems recibidos</div>
+            <div class="avg-value" id="artDiaAvgValue">0</div>
+            <div class="avg-hint" id="artDiaAvgHint">—</div>
+          </div>
         </div>
       </div>
 
       <div class="abast-tables-grid">
         <div class="abast-col">
           <div class="group-title">Últimas recepciones <span class="tag" id="recepcionesCountTag">20 registros</span></div>
-          <div class="abast-sub-kpi-row">
-            <div class="abast-sub-kpi" style="--accent:var(--green)">
-              <div class="sub-label">📐 Promedio proveedores/día</div>
-              <div class="sub-value" id="provDiaAvgValue">0</div>
-              <div class="sub-hint" id="provDiaAvgHint">—</div>
-            </div>
-            <div class="abast-sub-kpi" style="--accent:var(--teal)">
-              <div class="sub-label">📐 Promedio artículos/día</div>
-              <div class="sub-value" id="artDiaAvgValue">0</div>
-              <div class="sub-hint" id="artDiaAvgHint">—</div>
-            </div>
-          </div>
           <div class="table-wrap scroll-x">
             <table>
               <thead>
@@ -819,20 +853,39 @@
             </table>
           </div>
         </div>
+      </div>
+    </div>
 
+    <!-- ---- SUB-HOJA 2: OP ---- -->
+    <div class="abast-subview" id="abast-sub-op">
+      <div class="abast-kpi-row">
+        <div class="abast-kpi" style="--accent:var(--violet)">
+          <span class="icon">📈</span>
+          <div class="label" id="acondMesLabel">Total de OP preparadas del mes — a hoy</div>
+          <div class="value" data-field="acond_op_mes">129</div>
+          <div class="hint">órdenes de producción acumuladas</div>
+          <div class="abast-kpi-avg">
+            <div class="avg-label">📐 Promedio de OP preparadas</div>
+            <div class="avg-value" id="opDiaAvgValue">0</div>
+            <div class="avg-hint" id="opDiaAvgHint">por día</div>
+          </div>
+        </div>
+        <div class="abast-kpi" style="--accent:var(--amber)">
+          <span class="icon">🏆</span>
+          <div class="label">Día con máximo de OP</div>
+          <div class="value" id="opDiaMaxValue">0</div>
+          <div class="hint">OP preparadas en un solo día</div>
+          <div class="abast-kpi-avg">
+            <div class="avg-label">📅 Fecha del máximo</div>
+            <div class="avg-value" id="opDiaMaxFecha">—</div>
+            <div class="avg-hint">día con más OP del mes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="abast-tables-grid abast-op-grid">
         <div class="abast-col">
           <div class="group-title">OP preparadas por día ACO <span class="tag" id="opDiaCountTag">0 días</span></div>
-          <div class="abast-sub-kpi-row">
-            <div class="abast-sub-kpi" style="--accent:var(--teal)">
-              <div class="sub-label">📐 Promedio OP/día</div>
-              <div class="sub-value" id="opDiaAvgValue">0</div>
-            </div>
-            <div class="abast-sub-kpi" style="--accent:var(--amber)">
-              <div class="sub-label">🏆 Día con máximo</div>
-              <div class="sub-value" id="opDiaMaxValue">0</div>
-              <div class="sub-hint" id="opDiaMaxFecha">—</div>
-            </div>
-          </div>
           <div class="table-wrap scroll-x">
             <table>
               <thead>
@@ -1389,6 +1442,7 @@ function renderOpPorDia(){
   setTextIfExists("opDiaAvgValue", stats.dias ? fmtDecimal(stats.avg) : "0");
   setTextIfExists("opDiaMaxValue", stats.dias ? fmt(stats.maxCantidad) : "0");
   setTextIfExists("opDiaMaxFecha", stats.dias ? stats.maxFecha : "—");
+  setTextIfExists("opDiaAvgHint", stats.dias ? `por día · ${fmt(stats.dias)} ${stats.dias === 1 ? "día" : "días"} con OP` : "—");
 }
 
 function computeOpDiaStats(rows){
@@ -1417,8 +1471,8 @@ function renderPromediosRecepcion(){
   const diasTxt = `${dias} ${dias === 1 ? "día hábil" : "días hábiles"}`;
   setTextIfExists("provDiaAvgValue", dias ? fmtDecimal(prov / dias) : "0");
   setTextIfExists("artDiaAvgValue",  dias ? fmtDecimal(art / dias)  : "0");
-  setTextIfExists("provDiaAvgHint", `${fmt(prov)} en ${diasTxt}`);
-  setTextIfExists("artDiaAvgHint",  `${fmt(art)} en ${diasTxt}`);
+  setTextIfExists("provDiaAvgHint", `por día · ${fmt(prov)} en ${diasTxt}`);
+  setTextIfExists("artDiaAvgHint",  `por día · ${fmt(art)} en ${diasTxt}`);
 }
 
 function setTextIfExists(id, txt){
@@ -1594,6 +1648,18 @@ function setAcondSubView(target){
   }
 }
 
+/* Cambia la sub-hoja activa de Abastecimiento ('recepcion' u 'op') */
+function setAbastSubView(target){
+  const btn = document.querySelector(`#abastSubtabs button[data-abast-sub="${target}"]`);
+  if(!btn) return;
+  document.querySelectorAll("#abastSubtabs button").forEach(b => b.classList.toggle("active", b === btn));
+  document.querySelectorAll("#view-abastecimiento .abast-subview").forEach(v => v.classList.toggle("active", v.id === `abast-sub-${target}`));
+  if(VIEWS[currentViewIndex] === "abastecimiento"){
+    const state = viewZoomState["abastecimiento"];
+    if(!state || !state.manual) autoFitView("abastecimiento", false);
+  }
+}
+
 function goToView(viewName){
   const idx = VIEWS.indexOf(viewName);
   if(idx === -1) return;
@@ -1604,6 +1670,9 @@ function goToView(viewName){
   // Si volvemos a entrar a Acondicionamiento desde otro panel, aseguramos empezar siempre en la sub-pestaña KPIs
   if(viewName === "acondicionamiento"){
     setAcondSubView("kpis");
+  }
+  if(viewName === "abastecimiento"){
+    setAbastSubView("recepcion");
   }
 
   applyOrFitZoom(viewName);
@@ -1709,6 +1778,13 @@ document.addEventListener("webkitfullscreenchange", refitOnResize);
 function nextView(){
   const currentView = VIEWS[currentViewIndex];
   
+  if(currentView === "abastecimiento"){
+    if(document.getElementById("abast-sub-recepcion").classList.contains("active")){
+      setAbastSubView("op");
+      return;
+    }
+  }
+
   if(currentView === "acondicionamiento"){
     const isKpisActive = document.getElementById("acond-sub-kpis").classList.contains("active");
     if(isKpisActive){
@@ -1757,6 +1833,12 @@ document.getElementById("acondSubtabs")?.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-acond-sub]");
   if(!btn) return;
   setAcondSubView(btn.dataset.acondSub);
+});
+
+document.getElementById("abastSubtabs")?.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-abast-sub]");
+  if(!btn) return;
+  setAbastSubView(btn.dataset.abastSub);
 });
 
 document.addEventListener("click", resetAutoAdvance);
