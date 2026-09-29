@@ -777,6 +777,18 @@
       <div class="abast-tables-grid">
         <div class="abast-col">
           <div class="group-title">Últimas recepciones <span class="tag" id="recepcionesCountTag">20 registros</span></div>
+          <div class="abast-sub-kpi-row">
+            <div class="abast-sub-kpi" style="--accent:var(--green)">
+              <div class="sub-label">📐 Promedio proveedores/día</div>
+              <div class="sub-value" id="provDiaAvgValue">0</div>
+              <div class="sub-hint" id="provDiaAvgHint">—</div>
+            </div>
+            <div class="abast-sub-kpi" style="--accent:var(--teal)">
+              <div class="sub-label">📐 Promedio artículos/día</div>
+              <div class="sub-value" id="artDiaAvgValue">0</div>
+              <div class="sub-hint" id="artDiaAvgHint">—</div>
+            </div>
+          </div>
           <div class="table-wrap scroll-x">
             <table>
               <thead>
@@ -1387,6 +1399,28 @@ function computeOpDiaStats(rows){
   return { avg: total / rows.length, maxCantidad: toNum(maxRow.cantidad), maxFecha: maxRow.fecha, dias: rows.length };
 }
 
+/* Promedios por día de recepción: acumulado del mes / días hábiles (lun–vie) transcurridos hasta hoy */
+function diasHabilesDelMes(){
+  const hoy = new Date();
+  let n = 0;
+  for(let d = 1; d <= hoy.getDate(); d++){
+    const w = new Date(hoy.getFullYear(), hoy.getMonth(), d).getDay();
+    if(w !== 0 && w !== 6) n++;
+  }
+  return n;
+}
+
+function renderPromediosRecepcion(){
+  const dias = diasHabilesDelMes();
+  const prov = toNum(DATA.kpis.proveedores);
+  const art  = toNum(DATA.kpis.articulos);
+  const diasTxt = `${dias} ${dias === 1 ? "día hábil" : "días hábiles"}`;
+  setTextIfExists("provDiaAvgValue", dias ? fmtDecimal(prov / dias) : "0");
+  setTextIfExists("artDiaAvgValue",  dias ? fmtDecimal(art / dias)  : "0");
+  setTextIfExists("provDiaAvgHint", `${fmt(prov)} en ${diasTxt}`);
+  setTextIfExists("artDiaAvgHint",  `${fmt(art)} en ${diasTxt}`);
+}
+
 function setTextIfExists(id, txt){
   const el = document.getElementById(id);
   if(el) el.textContent = txt;
@@ -1539,6 +1573,7 @@ function renderAll(){
   renderAcondContadores();
   renderRecepcionesYFaltantes();
   renderOpPorDia();
+  renderPromediosRecepcion();
 }
 
 const AUTO_ADVANCE_SECONDS = 60;
