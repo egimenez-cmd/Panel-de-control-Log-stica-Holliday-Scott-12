@@ -197,6 +197,8 @@
   td.name-cell, th.name-cell{font-family:var(--body); font-weight:500;}
   td.num{text-align:right; font-variant-numeric:tabular-nums;}
   th.num{text-align:right;}
+  td.ctr, th.ctr{text-align:center;}
+  td.ctr{color:var(--ink);}
 
   tbody tr.row-proceso{background:#4EA8DE14;}
   tbody tr.row-terminado{background:#4FBE8C14;}
@@ -549,6 +551,41 @@
     #view-acondicionamiento .acond-body,
     #view-abastecimiento .abast-tables-grid{grid-template-columns:1fr !important;}
   }
+  /* ---- PANEL 03 · OP: dos bloques simétricos (Acondicionamiento | Fraccionamiento) ---- */
+  #view-abastecimiento .op-split{
+    display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:24px;
+    flex:1; min-height:0; align-items:stretch;
+  }
+  #view-abastecimiento .op-col{display:flex; flex-direction:column; min-height:0;}
+  #view-abastecimiento .op-col-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 18px; margin-bottom:14px; flex:0 0 auto;
+    background:var(--panel); border:1px solid var(--line-strong);
+    border-left:4px solid var(--accent,var(--teal)); border-radius:12px;
+  }
+  #view-abastecimiento .op-col-head h3{
+    margin:0; font-family:var(--disp); font-size:17px; font-weight:600;
+    letter-spacing:.5px; text-transform:uppercase; color:var(--ink);
+  }
+  #view-abastecimiento .op-col-head .op-src{
+    font-family:var(--mono); font-size:12px; color:var(--ink-faint);
+    border:1px solid var(--line-strong); border-radius:5px; padding:2px 8px; white-space:nowrap;
+  }
+  #view-abastecimiento .op-kpis{
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;
+    margin-bottom:16px; flex:0 0 auto;
+  }
+  #view-abastecimiento .op-kpis .abast-kpi{padding:14px 16px !important; min-height:150px; justify-content:flex-start;}
+  #view-abastecimiento .op-kpis .abast-kpi .label{min-height:2.5em;}
+  #view-abastecimiento .op-kpis .abast-kpi .value{font-size:40px !important;}
+  #view-abastecimiento .op-kpis .abast-kpi .hint{font-size:12px;}
+  #view-abastecimiento .op-col .table-wrap{flex:1; min-height:0; overflow-y:auto;}
+  #view-abastecimiento .op-col td.empty-row{
+    text-align:center; color:var(--ink-faint); font-family:var(--body); padding:22px 14px !important;
+  }
+  @media(max-width:1100px){
+    #view-abastecimiento .op-split{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
@@ -600,7 +637,7 @@
     <div class="kpi-row">
       <div class="kpi" style="--accent:var(--teal)"><span class="icon">🚀</span><div class="label">Exportaciones</div><div class="value" data-field="exp_count">7</div></div>
       <div class="kpi" style="--accent:var(--teal)"><span class="icon">📦</span><div class="label">Pallets</div><div class="value" data-field="exp_pallets">34</div></div>
-      <div class="kpi" style="--accent:var(--teal)"><span class="icon">📋</span><div class="label">Items</div><div class="value" data-field="exp_items">154</div></div>
+      <div class="kpi" style="--accent:var(--teal)"><span class="icon">📋</span><div class="label">Ítems</div><div class="value" data-field="exp_items">154</div></div>
       <div class="kpi" style="--accent:var(--teal)"><span class="icon">💊</span><div class="label">Unid. fármaco</div><div class="value" data-field="exp_farmaco">132.330</div></div>
       <div class="kpi" style="--accent:var(--amber)"><span class="icon">🎁</span><div class="label">Unid. promoción</div><div class="value" data-field="exp_promo">1.300</div></div>
       <div class="kpi" style="--accent:var(--violet)"><span class="icon">🐾</span><div class="label">Unid. alimento</div><div class="value" data-field="exp_alimento">3.962</div></div>
@@ -625,17 +662,17 @@
           <tr>
             <th class="name-cell">Nota empaque</th>
             <th class="num">Pallets</th>
-            <th class="num">Items</th>
-            <th class="num">Items liberados</th>
-            <th class="num">Progreso</th>
+            <th class="num">Ítems</th>
+            <th class="num">Ítems liberados</th>
+            <th class="ctr">Progreso</th>
             <th class="num">Fármaco</th>
             <th class="num">Promoción</th>
             <th class="num">Alimento</th>
             <th class="num">Total unid.</th>
-            <th>Fecha entrega</th>
-            <th>Días que faltan</th>
-            <th>Entregada</th>
-            <th>Diferencia</th>
+            <th class="ctr">Fecha entrega</th>
+            <th class="ctr">Días que faltan</th>
+            <th class="ctr">Entregada</th>
+            <th class="ctr">Diferencia</th>
           </tr>
         </thead>
         <tbody id="exportacionesBody">
@@ -654,7 +691,7 @@
     <div class="kpi-row">
       <div class="kpi" style="--accent:var(--sky)"><span class="icon">🚀</span><div class="label">Exportaciones</div><div class="value" data-field="exp2_count">0</div></div>
       <div class="kpi" style="--accent:var(--sky)"><span class="icon">📦</span><div class="label">Pallets</div><div class="value" data-field="exp2_pallets">0</div></div>
-      <div class="kpi" style="--accent:var(--sky)"><span class="icon">📋</span><div class="label">Items</div><div class="value" data-field="exp2_items">0</div></div>
+      <div class="kpi" style="--accent:var(--sky)"><span class="icon">📋</span><div class="label">Ítems</div><div class="value" data-field="exp2_items">0</div></div>
       <div class="kpi" style="--accent:var(--sky)"><span class="icon">💊</span><div class="label">Unid. fármaco</div><div class="value" data-field="exp2_farmaco">0</div></div>
       <div class="kpi" style="--accent:var(--amber)"><span class="icon">🎁</span><div class="label">Unid. promoción</div><div class="value" data-field="exp2_promo">0</div></div>
       <div class="kpi" style="--accent:var(--violet)"><span class="icon">🐾</span><div class="label">Unid. alimento</div><div class="value" data-field="exp2_alimento">0</div></div>
@@ -679,17 +716,17 @@
           <tr>
             <th class="name-cell">Nota empaque</th>
             <th class="num">Pallets</th>
-            <th class="num">Items</th>
-            <th class="num">Items liberados</th>
-            <th class="num">Progreso</th>
+            <th class="num">Ítems</th>
+            <th class="num">Ítems liberados</th>
+            <th class="ctr">Progreso</th>
             <th class="num">Fármaco</th>
             <th class="num">Promoción</th>
             <th class="num">Alimento</th>
             <th class="num">Total unid.</th>
-            <th>Fecha entrega</th>
-            <th>Días que faltan</th>
-            <th>Entregada</th>
-            <th>Diferencia</th>
+            <th class="ctr">Fecha entrega</th>
+            <th class="ctr">Días que faltan</th>
+            <th class="ctr">Entregada</th>
+            <th class="ctr">Diferencia</th>
           </tr>
         </thead>
         <tbody id="exportacionesSiguienteBody">
@@ -856,36 +893,37 @@
       </div>
     </div>
 
-    <!-- ---- SUB-HOJA 2: OP ---- -->
+    <!-- ---- SUB-HOJA 2: OP (Acondicionamiento | Fraccionamiento) ---- -->
     <div class="abast-subview" id="abast-sub-op">
-      <div class="abast-kpi-row">
-        <div class="abast-kpi" style="--accent:var(--violet)">
-          <span class="icon">📈</span>
-          <div class="label" id="acondMesLabel">Total de OP preparadas del mes — a hoy</div>
-          <div class="value" data-field="acond_op_mes">129</div>
-          <div class="hint">órdenes de producción acumuladas</div>
-          <div class="abast-kpi-avg">
-            <div class="avg-label">📐 Promedio de OP preparadas</div>
-            <div class="avg-value" id="opDiaAvgValue">0</div>
-            <div class="avg-hint" id="opDiaAvgHint">por día</div>
-          </div>
-        </div>
-        <div class="abast-kpi" style="--accent:var(--amber)">
-          <span class="icon">🏆</span>
-          <div class="label">Día con máximo de OP</div>
-          <div class="value" id="opDiaMaxValue">0</div>
-          <div class="hint">OP preparadas en un solo día</div>
-          <div class="abast-kpi-avg">
-            <div class="avg-label">📅 Fecha del máximo</div>
-            <div class="avg-value" id="opDiaMaxFecha">—</div>
-            <div class="avg-hint">día con más OP del mes</div>
-          </div>
-        </div>
-      </div>
+      <div class="op-split">
 
-      <div class="abast-tables-grid abast-op-grid">
-        <div class="abast-col">
-          <div class="group-title">OP preparadas por día ACO <span class="tag" id="opDiaCountTag">0 días</span></div>
+        <!-- ===== OP ACONDICIONAMIENTO ===== -->
+        <div class="op-col" style="--accent:var(--violet)">
+          <div class="op-col-head">
+            <h3>Órdenes de producción · Acondicionamiento</h3>
+            <span class="op-src">hoja Aco</span>
+          </div>
+          <div class="op-kpis">
+            <div class="abast-kpi" style="--accent:var(--violet)">
+              <span class="icon">📈</span>
+              <div class="label" id="acondMesLabel">OP preparadas del mes — a hoy</div>
+              <div class="value" data-field="acond_op_mes">0</div>
+              <div class="hint">órdenes acumuladas</div>
+            </div>
+            <div class="abast-kpi" style="--accent:var(--teal)">
+              <span class="icon">📐</span>
+              <div class="label">Promedio de OP preparadas</div>
+              <div class="value" id="opDiaAvgValue">0</div>
+              <div class="hint" id="opDiaAvgHint">—</div>
+            </div>
+            <div class="abast-kpi" style="--accent:var(--amber)">
+              <span class="icon">🏆</span>
+              <div class="label">Día con máximo de OP</div>
+              <div class="value" id="opDiaMaxValue">0</div>
+              <div class="hint" id="opDiaMaxFecha">—</div>
+            </div>
+          </div>
+          <div class="group-title">OP preparadas por día <span class="tag" id="opDiaCountTag">0 días</span></div>
           <div class="table-wrap scroll-x">
             <table>
               <thead>
@@ -898,6 +936,47 @@
             </table>
           </div>
         </div>
+
+        <!-- ===== OP FRACCIONAMIENTO ===== -->
+        <div class="op-col" style="--accent:var(--sky)">
+          <div class="op-col-head">
+            <h3>Órdenes de producción · Fraccionamiento</h3>
+            <span class="op-src">hoja OP FRA</span>
+          </div>
+          <div class="op-kpis">
+            <div class="abast-kpi" style="--accent:var(--sky)">
+              <span class="icon">📈</span>
+              <div class="label" id="fraMesLabel">OP preparadas del mes — a hoy</div>
+              <div class="value" id="fraOpMes">0</div>
+              <div class="hint">órdenes acumuladas</div>
+            </div>
+            <div class="abast-kpi" style="--accent:var(--teal)">
+              <span class="icon">📐</span>
+              <div class="label">Promedio de OP preparadas</div>
+              <div class="value" id="fraOpAvgValue">0</div>
+              <div class="hint" id="fraOpAvgHint">—</div>
+            </div>
+            <div class="abast-kpi" style="--accent:var(--amber)">
+              <span class="icon">🏆</span>
+              <div class="label">Día con máximo de OP</div>
+              <div class="value" id="fraOpMaxValue">0</div>
+              <div class="hint" id="fraOpMaxFecha">—</div>
+            </div>
+          </div>
+          <div class="group-title">OP preparadas por día <span class="tag" id="fraOpCountTag">0 días</span></div>
+          <div class="table-wrap scroll-x">
+            <table>
+              <thead>
+                <tr>
+                  <th class="name-cell">Fecha</th>
+                  <th class="num">OP preparadas</th>
+                </tr>
+              </thead>
+              <tbody id="fraOpBody"></tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -1056,6 +1135,10 @@ const DATA = {
     {fecha:"09/09/2026", cantidad:"22"},
     {fecha:"10/09/2026", cantidad:"25"}
   ],
+  opFra:[
+    {fecha:"01/09/2026", cantidad:2}, {fecha:"03/09/2026", cantidad:10}, {fecha:"04/09/2026", cantidad:10},
+    {fecha:"08/09/2026", cantidad:3}, {fecha:"10/09/2026", cantidad:9}, {fecha:"11/09/2026", cantidad:6}
+  ],
   recepciones:[
     {proveedor:"SYMRISE", articulo:"CSENS POWDER 030 — Hidrolizado de menudencias aviares"},
     {proveedor:"Rosenco", articulo:"Betaína"},
@@ -1091,6 +1174,8 @@ const GOOGLE_SHEETS_CONFIG = {
     acondContadores:  { sheet:"ACONDICIONAMIENTO DEL DÍA", range:"N1:P2", headers:1 },
     acondOpMes:       { sheet:"Aco",                       range:"G1:G2", headers:1 },
     opPorDia:         { sheet:"Aco",                       range:"D2:E100", headers:0 },
+    // OP Fraccionamiento: columnas A y B COMPLETAS (sin rango fijo). Se filtra el mes actual en el navegador.
+    opFra:            { sheet:"OP FRA",                    tq:"select A, B where A is not null", headers:1 },
     recepciones:      { sheet:"Puente HTML",               range:"D1:E25", headers:0 },
     itemsFalta:       { sheet:"Registro Diario PROVEEDORES", range:"K2:L60", headers:0 }
   }
@@ -1108,6 +1193,47 @@ async function fetchSheetRange(sheetId, cfg){
   return json.table.rows
     .map(r => r.c.map(cell => cell ? (cell.f ?? cell.v ?? "") : ""))
     .filter(row => row.some(v => v !== ""));
+}
+
+/* Igual que fetchSheetRange pero devuelve {v,f} por celda (necesario para leer fechas reales) */
+async function fetchSheetCells(sheetId, cfg){
+  const params = new URLSearchParams({ tqx:"out:json", sheet: cfg.sheet });
+  if(cfg.range) params.set("range", cfg.range);
+  if(cfg.tq) params.set("tq", cfg.tq);
+  if(cfg.headers !== undefined) params.set("headers", String(cfg.headers));
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?${params.toString()}`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
+  return json.table.rows.map(r => r.c.map(cell => cell ? { v: cell.v, f: cell.f } : null));
+}
+
+/* Fecha de una celda gviz: "Date(2026,8,1)" (mes base 0) o texto dd/mm/aaaa */
+function parseGvizDate(cell){
+  if(!cell) return null;
+  const v = cell.v;
+  if(typeof v === "string"){
+    const m = v.match(/^Date\((\d+),\s*(\d+),\s*(\d+)/);
+    if(m) return new Date(+m[1], +m[2], +m[3]);
+  }
+  return parseFechaSheet(cell.f ?? v);
+}
+
+function fmtFechaCorta(d){
+  return d.toLocaleDateString("es-AR", { day:"2-digit", month:"2-digit", year:"numeric" });
+}
+
+/* Solo días del mes en curso, hasta hoy, con OP > 0 */
+function opFraDelMes(cells){
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  return cells
+    .map(r => ({ d: parseGvizDate(r[0]), n: toNum(r[1] ? (r[1].v ?? r[1].f) : 0) }))
+    .filter(x => x.d && x.n > 0
+      && x.d.getFullYear() === hoy.getFullYear()
+      && x.d.getMonth() === hoy.getMonth()
+      && x.d <= hoy)
+    .sort((a, b) => a.d - b.d)
+    .map(x => ({ fecha: fmtFechaCorta(x.d), cantidad: x.n }));
 }
 
 function classifyDias(raw){
@@ -1160,7 +1286,7 @@ function esFechaHastaHoy(raw){
 async function loadFromGoogleSheets(){
   try{
     const { sheetId, tabs } = GOOGLE_SHEETS_CONFIG;
-    const [kpiRows, expRows, expNextRows, despRows, acumRows, acondRows, contRows, opMesRows, opDiaRows, recepRows, faltaRows] = await Promise.all([
+    const [kpiRows, expRows, expNextRows, despRows, acumRows, acondRows, contRows, opMesRows, opDiaRows, recepRows, faltaRows, opFraCells] = await Promise.all([
       fetchSheetRange(sheetId, tabs.kpis),
       fetchSheetRange(sheetId, tabs.exportaciones),
       fetchSheetRange(sheetId, tabs.exportacionesSiguiente),
@@ -1171,7 +1297,8 @@ async function loadFromGoogleSheets(){
       fetchSheetRange(sheetId, tabs.acondOpMes),
       fetchSheetRange(sheetId, tabs.opPorDia),
       fetchSheetRange(sheetId, tabs.recepciones),
-      fetchSheetRange(sheetId, tabs.itemsFalta)
+      fetchSheetRange(sheetId, tabs.itemsFalta),
+      fetchSheetCells(sheetId, tabs.opFra)
     ]);
 
     kpiRows.forEach(row => { if(row[0]) DATA.kpis[row[0]] = String(row[1]); });
@@ -1205,6 +1332,8 @@ async function loadFromGoogleSheets(){
     DATA.opPorDia = opDiaRows
       .map(row => ({fecha:row[0], cantidad:row[1]}))
       .filter(r => r.fecha !== "" && esFechaHastaHoy(r.fecha));
+
+    DATA.opFra = opFraDelMes(opFraCells);
 
     DATA.recepciones = recepRows
       .map(row => ({proveedor:row[0], articulo:row[1]}))
@@ -1279,15 +1408,15 @@ function renderExportaciones(){
       <td class="num">${r.pallets}</td>
       <td class="num">${r.items}</td>
       <td class="num" style="font-weight:600; color:var(--teal);">${r.liberados !== undefined && r.liberados !== "" ? r.liberados : "—"}</td>
-      <td class="num">${fmtProgreso(r.progresoRaw)}</td>
+      <td class="ctr">${fmtProgreso(r.progresoRaw !== undefined ? r.progresoRaw : r.progreso)}</td>
       <td class="num">${fmt(r.farmaco)}</td>
       <td class="num">${fmt(r.promo)}</td>
       <td class="num">${fmt(r.alimento)}</td>
       <td class="num">${fmt(r.total)}</td>
-      <td>${r.fecha}</td>
-      <td>${dias.text!==""? pill(dias.text, dias.cls) : ""}</td>
-      <td>${r.entregada}</td>
-      <td>${dif.text!=="—"? pill(dif.text, dif.cls) : "—"}</td>
+      <td class="ctr">${r.fecha}</td>
+      <td class="ctr">${dias.text!==""? pill(dias.text, dias.cls) : "—"}</td>
+      <td class="ctr">${r.entregada}</td>
+      <td class="ctr">${dif.text!=="—"? pill(dif.text, dif.cls) : "—"}</td>
     </tr>`;
   }).join("");
 }
@@ -1318,15 +1447,15 @@ function renderExportacionesSiguiente(){
       <td class="num">${r.pallets}</td>
       <td class="num">${r.items}</td>
       <td class="num" style="font-weight:600; color:var(--sky);">${r.liberados !== undefined && r.liberados !== "" ? r.liberados : "—"}</td>
-      <td class="num">${fmtProgreso(r.progresoRaw)}</td>
+      <td class="ctr">${fmtProgreso(r.progresoRaw !== undefined ? r.progresoRaw : r.progreso)}</td>
       <td class="num">${fmt(r.farmaco)}</td>
       <td class="num">${fmt(r.promo)}</td>
       <td class="num">${fmt(r.alimento)}</td>
       <td class="num">${fmt(r.total)}</td>
-      <td>${r.fecha}</td>
-      <td>${dias.text!==""? pill(dias.text, dias.cls) : ""}</td>
-      <td>${r.entregada}</td>
-      <td>${dif.text!=="—"? pill(dif.text, dif.cls) : "—"}</td>
+      <td class="ctr">${r.fecha}</td>
+      <td class="ctr">${dias.text!==""? pill(dias.text, dias.cls) : "—"}</td>
+      <td class="ctr">${r.entregada}</td>
+      <td class="ctr">${dif.text!=="—"? pill(dif.text, dif.cls) : "—"}</td>
     </tr>`;
   }).join("");
 
@@ -1429,20 +1558,42 @@ function renderRecepcionesYFaltantes(){
   if(faltaTag) faltaTag.textContent = `${faltantes.length} ${faltantes.length === 1 ? "registro" : "registros"}`;
 }
 
-function renderOpPorDia(){
-  const body = document.getElementById("opPorDiaBody");
+function renderOpBlock(cfg){
+  const body = document.getElementById(cfg.body);
   if(!body) return;
-  const rows = (DATA.opPorDia || []).filter(r => toNum(r.cantidad) > 0);
-  body.innerHTML = rows.map(r => `
-    <tr><td class="name-cell">${r.fecha}</td><td class="num">${fmt(r.cantidad)}</td></tr>`).join("");
-  const tag = document.getElementById("opDiaCountTag");
-  if(tag) tag.textContent = `${rows.length} ${rows.length === 1 ? "día" : "días"}`;
+  const rows = (cfg.rows || [])
+    .filter(r => toNum(r.cantidad) > 0)
+    .map(r => {
+      const d = (typeof r.fecha === "string") ? parseFechaSheet(r.fecha) : null;
+      return { fecha: d ? fmtFechaCorta(d) : r.fecha, cantidad: r.cantidad };
+    });
+  body.innerHTML = rows.length
+    ? rows.map(r => `
+    <tr><td class="name-cell">${r.fecha}</td><td class="num">${fmt(r.cantidad)}</td></tr>`).join("")
+    : `<tr><td class="empty-row" colspan="2">Sin OP cargadas este mes</td></tr>`;
+  setTextIfExists(cfg.tag, `${rows.length} ${rows.length === 1 ? "día" : "días"}`);
 
   const stats = computeOpDiaStats(rows);
-  setTextIfExists("opDiaAvgValue", stats.dias ? fmtDecimal(stats.avg) : "0");
-  setTextIfExists("opDiaMaxValue", stats.dias ? fmt(stats.maxCantidad) : "0");
-  setTextIfExists("opDiaMaxFecha", stats.dias ? stats.maxFecha : "—");
-  setTextIfExists("opDiaAvgHint", stats.dias ? `por día · ${fmt(stats.dias)} ${stats.dias === 1 ? "día" : "días"} con OP` : "—");
+  const total = rows.reduce((a, r) => a + toNum(r.cantidad), 0);
+  if(cfg.totalId) setTextIfExists(cfg.totalId, fmt(total));
+  setTextIfExists(cfg.avgValue, stats.dias ? fmtDecimal(stats.avg) : "0");
+  setTextIfExists(cfg.avgHint, stats.dias ? `por día · ${fmt(stats.dias)} ${stats.dias === 1 ? "día" : "días"} con OP` : "—");
+  setTextIfExists(cfg.maxValue, stats.dias ? fmt(stats.maxCantidad) : "0");
+  setTextIfExists(cfg.maxFecha, stats.dias ? `📅 ${stats.maxFecha}` : "—");
+}
+
+function renderOpPorDia(){
+  renderOpBlock({
+    rows: DATA.opPorDia, body: "opPorDiaBody", tag: "opDiaCountTag",
+    avgValue: "opDiaAvgValue", avgHint: "opDiaAvgHint", maxValue: "opDiaMaxValue", maxFecha: "opDiaMaxFecha"
+  });
+}
+
+function renderOpFra(){
+  renderOpBlock({
+    rows: DATA.opFra, body: "fraOpBody", tag: "fraOpCountTag", totalId: "fraOpMes",
+    avgValue: "fraOpAvgValue", avgHint: "fraOpAvgHint", maxValue: "fraOpMaxValue", maxFecha: "fraOpMaxFecha"
+  });
 }
 
 function computeOpDiaStats(rows){
@@ -1497,7 +1648,7 @@ function renderAcondicionamiento(){
       ? equipo.map(n => `<span class="member">${n}</span>`).join("")
       : `<span style="color:var(--ink-faint)">—</span>`;
     return `
-    <tr class="${estado.rowCls}"><td>${r.op}</td><td class="name-cell">${r.articulo}</td><td class="num">${r.unidades}</td><td class="num">${r.lote}</td><td class="num">${r.bultos}</td><td>${estadoCell}</td><td class="team-cell">${equipoCell}</td></tr>`;
+    <tr class="${estado.rowCls}"><td>${r.op}</td><td class="name-cell">${r.articulo}</td><td class="num">${r.unidades}</td><td class="num">${r.lote}</td><td class="num">${(r.bultos === "#N/A" || r.bultos === "" || r.bultos === undefined) ? "—" : r.bultos}</td><td>${estadoCell}</td><td class="team-cell">${equipoCell}</td></tr>`;
   }).join("");
   document.getElementById("opCountTag").textContent = `${DATA.acondicionamiento.length} registros`;
 
@@ -1611,6 +1762,8 @@ function updateDynamicLabels(){
 
   const acondMesEl = document.getElementById("acondMesLabel");
   if(acondMesEl) acondMesEl.textContent = `Total de OP preparadas de ${actual.nombre} — a hoy`;
+  const fraMesEl = document.getElementById("fraMesLabel");
+  if(fraMesEl) fraMesEl.textContent = `Total de OP preparadas de ${actual.nombre} — a hoy`;
 
   const abastHint = document.getElementById("abastHintProv");
   if(abastHint) abastHint.textContent = `acumulado de ${actual.nombre}`;
@@ -1627,6 +1780,7 @@ function renderAll(){
   renderAcondContadores();
   renderRecepcionesYFaltantes();
   renderOpPorDia();
+  renderOpFra();
   renderPromediosRecepcion();
 }
 
@@ -1650,6 +1804,10 @@ function setAcondSubView(target){
 
 /* Cambia la sub-hoja activa de Abastecimiento ('recepcion' u 'op') */
 function setAbastSubView(target){
+  const titleEl = document.getElementById("abastTitle");
+  if(titleEl) titleEl.textContent = target === "op"
+    ? "Abastecimiento — órdenes de producción"
+    : "Abastecimiento — recepción de proveedores";
   const btn = document.querySelector(`#abastSubtabs button[data-abast-sub="${target}"]`);
   if(!btn) return;
   document.querySelectorAll("#abastSubtabs button").forEach(b => b.classList.toggle("active", b === btn));
